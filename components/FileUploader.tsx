@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, FileText, X } from "lucide-react";
 import { Button } from "./Button";
 import {
   isValidFileType,
@@ -12,12 +12,16 @@ import {
 
 interface FileUploaderProps {
   onFileSelected: (text: string, filename: string) => void;
+  onFileClear?: () => void;
   loading?: boolean;
+  currentFileName?: string;
 }
 
 export function FileUploader({
   onFileSelected,
+  onFileClear,
   loading = false,
+  currentFileName,
 }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>("");
@@ -31,7 +35,6 @@ export function FileUploader({
     setIsProcessing(true);
 
     try {
-      // Validate file
       if (!isValidFileType(file)) {
         setError(".txt yoki .docx faylini yuklang");
         return;
@@ -42,13 +45,11 @@ export function FileUploader({
         return;
       }
 
-      // Extract text based on file type
       let text: string;
       if (file.type === "text/plain" || file.name.endsWith(".txt")) {
         text = await extractTextFromTxt(file);
       } else if (
-        file.type ===
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+        file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
         file.name.endsWith(".docx")
       ) {
         text = await extractTextFromDocx(file);
@@ -58,7 +59,7 @@ export function FileUploader({
       }
 
       if (!text.trim()) {
-        setError("Fayl bo'sh");
+        setError("Fayl bo'sh yoki o'qib bo'lmadi");
         return;
       }
 
@@ -73,6 +74,18 @@ export function FileUploader({
     }
   };
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (!file) return;
+    const fakeEvent = { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>;
+    handleFileChange(fakeEvent);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+  };
+
   return (
     <div className="w-full">
       <input
@@ -83,27 +96,50 @@ export function FileUploader({
         className="hidden"
         disabled={loading || isProcessing}
       />
-      <Button
-        onClick={() => fileInputRef.current?.click()}
-        variant="secondary"
-        loading={isProcessing}
-        disabled={loading || isProcessing}
-        className="w-full inline-flex items-center justify-center gap-2"
-      >
-        {isProcessing ? (
-          <>
-            <Loader2 size={18} className="animate-spin" />
-            Yuklanmoqda...
-          </>
-        ) : (
-          <>
-            <Upload size={18} />
-            Faylni yuklash (.txt yoki .docx)
-          </>
-        )}
-      </Button>
+
+      {currentFileName ? (
+        <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl">
+          <FileText size={18} className="text-primary-600 dark:text-primary-400 flex-shrink-0" />
+          <span className="text-sm font-medium text-primary-700 dark:text-primary-300 flex-1 truncate">
+            {currentFileName}
+          </span>
+          <button
+            onClick={() => {
+              onFileClear?.();
+              setError("");
+            }}
+            className="text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0"
+            aria-label="Faylni olib tashlash"
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ) : (
+        <div
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-4 text-center hover:border-primary-400 dark:hover:border-primary-600 transition-colors cursor-pointer group"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <div className="flex items-center justify-center gap-3">
+            {isProcessing ? (
+              <Loader2 size={18} className="animate-spin text-primary-500" />
+            ) : (
+              <Upload size={18} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+            )}
+            <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+              {isProcessing
+                ? "Yuklanmoqda..."
+                : "Fayl yuklash yoki bu yerga tashlang (.txt, .docx · max 5MB)"}
+            </span>
+          </div>
+        </div>
+      )}
+
       {error && (
-        <p className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</p>
+        <p className="mt-2 text-xs text-red-500 dark:text-red-400 flex items-center gap-1">
+          <span>⚠</span> {error}
+        </p>
       )}
     </div>
   );

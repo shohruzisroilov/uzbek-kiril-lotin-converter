@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import {
   Copy,
   Download,
   Trash2,
-  Upload,
-  ArrowRight,
-  ArrowLeft,
-  BarChart3,
+  ArrowLeftRight,
   History,
-  FileText,
   Keyboard,
+  CheckCheck,
+  Zap,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { TextArea } from "@/components/TextArea";
 import { Button } from "@/components/Button";
@@ -22,7 +22,6 @@ import {
   cyrillicToLatin,
   latinToCyrillic,
   isCyrillic,
-  isLatin,
   autoConvert,
   getCharacterCount,
 } from "@/lib/converter";
@@ -34,459 +33,519 @@ import {
   debounce,
 } from "@/lib/utils";
 
+type Direction = "cyrillic-to-latin" | "latin-to-cyrillic";
+
 interface ConversionHistoryItem {
   input: string;
   output: string;
-  direction: "cyrillic-to-latin" | "latin-to-cyrillic";
+  direction: Direction;
   timestamp: number;
+}
+
+function getWordCount(text: string): number {
+  return text.trim() ? text.trim().split(/\s+/).length : 0;
 }
 
 export function ConverterPage() {
   const { addToast } = useToast();
-  const [input, setInput] = useState("");
-  const [output, setOutput] = useState("");
-  const [realTimeEnabled, setRealTimeEnabled] = useState(false);
-  const [history, setHistory] = useState<ConversionHistoryItem[]>([]);
-  const [fileName, setFileName] = useState<string>("");
 
-  // Load saved input from localStorage on mount
+  const [input, setInput]               = useState("");
+  const [output, setOutput]             = useState("");
+  const [direction, setDirection]       = useState<Direction>("cyrillic-to-latin");
+  const [realTime, setRealTime]         = useState(false);
+  const [history, setHistory]           = useState<ConversionHistoryItem[]>([]);
+  const [fileName, setFileName]         = useState("");
+  const [showHistory, setShowHistory]   = useState(false);
+  const [showShortcuts, setShowShortcuts] = useState(false);
+  const [copied, setCopied]             = useState(false);
+
+  const outputRef = useRef<HTMLTextAreaElement>(null);
+
+  /* ── Persist input ── */
   useEffect(() => {
-    const savedInput = getFromLocalStorage("converter-input");
-    if (savedInput) {
-      setInput(savedInput);
-    }
+    const saved = getFromLocalStorage("converter-input");
+    if (saved) setInput(saved);
   }, []);
 
-  // Save input to localStorage whenever it changes
   useEffect(() => {
     saveToLocalStorage("converter-input", input);
   }, [input]);
 
-  // Load saved history from localStorage on mount
+  /* ── Persist history ── */
   useEffect(() => {
-    const savedHistory = getFromLocalStorage("converter-history");
-    if (savedHistory) {
+    const saved = getFromLocalStorage("converter-history");
+    if (saved) {
       try {
-        const parsed = JSON.parse(savedHistory);
-        if (Array.isArray(parsed)) {
-          setHistory(parsed);
-        }
-      } catch (error) {
-        console.error("Failed to parse history:", error);
-      }
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) setHistory(parsed);
+      } catch { /* ignore */ }
     }
   }, []);
 
-  // Save history to localStorage whenever it changes
   useEffect(() => {
     saveToLocalStorage("converter-history", JSON.stringify(history));
   }, [history]);
 
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      // Ctrl+Enter or Cmd+Enter: Auto-convert
-      if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
-        e.preventDefault();
-        if (input.trim()) {
-          const converted = autoConvert(input);
-          setOutput(converted);
-          setHistory((prev) =>
-            [
-              {
-                input,
-                output: converted,
-                direction: (isCyrillic(input)
-                  ? "cyrillic-to-latin"
-                  : "latin-to-cyrillic") as
-                  | "cyrillic-to-latin"
-                  | "latin-to-cyrillic",
-                timestamp: Date.now(),
-              },
-              ...prev,
-            ].slice(0, 10),
-          );
-          addToast("Konvertatsiya qilindi ✓", "success", 2000);
-        } else {
-          addToast("Iltimos, o'zgartiradigan matn kiriting", "info");
-        }
-      }
-      // Ctrl+Shift+C: Copy result
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key === "C") {
-        e.preventDefault();
-        handleCopyResult();
-      }
-      // Ctrl+K: Clear all
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
-        e.preventDefault();
-        handleClear();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [input, addToast]);
-
-  // Auto-convert with debounce when real-time is enabled
-  const handleRealTimeConversion = useCallback(
-    debounce((text: string) => {
-      if (text.trim()) {
-        const converted = autoConvert(text);
-        setOutput(converted);
-        setHistory((prev) =>
-          [
-            {
-              input: text,
-              output: converted,
-              direction: (isCyrillic(text)
-                ? "cyrillic-to-latin"
-                : "latin-to-cyrillic") as
-                | "cyrillic-to-latin"
-                | "latin-to-cyrillic",
-              timestamp: Date.now(),
-            },
-            ...prev,
-          ].slice(0, 10),
-        );
-      }
-    }, 300),
+  /* ── Core convert ── */
+  const convert = useCallback(
+    (text: string, dir: Direction): string => {
+      if (!text.trim()) return "";
+      return dir === "cyrillic-to-latin"
+        ? cyrillicToLatin(text)
+        : latinToCyrillic(text);
+    },
     [],
+  );
+
+  const addToHistory = useCallback(
+    (inp: string, out: string, dir: Direction) => {
+      setHistory((prev) =>
+        [{ input: inp, output: out, direction: dir, timestamp: Date.now() }, ...prev].slice(0, 15),
+      );
+    },
+    [],
+  );
+
+  /* ── Real-time debounced ── */
+  const debouncedConvert = useCallback(
+    debounce((text: string, dir: Direction) => {
+      const result = convert(text, dir);
+      setOutput(result);
+      if (result) addToHistory(text, result, dir);
+    }, 300),
+    [convert, addToHistory],
   );
 
   const handleInputChange = (value: string) => {
     setInput(value);
-    if (realTimeEnabled && value.trim()) {
-      handleRealTimeConversion(value);
+    if (realTime && value.trim()) {
+      debouncedConvert(value, direction);
+    } else if (!value.trim()) {
+      setOutput("");
     }
   };
 
-  const handleConvertCyrillicToLatin = () => {
+  /* ── Manual convert ── */
+  const handleConvert = useCallback(() => {
     if (!input.trim()) {
-      addToast("Iltimos, o'zgartiradigan matn kiriting", "info");
+      addToast("Iltimos, matn kiriting", "info");
       return;
     }
-
-    const result = cyrillicToLatin(input);
+    const result = convert(input, direction);
     setOutput(result);
-    setHistory((prev) =>
-      [
-        {
-          input,
-          output: result,
-          direction: "cyrillic-to-latin" as
-            | "cyrillic-to-latin"
-            | "latin-to-cyrillic",
-          timestamp: Date.now(),
-        },
-        ...prev,
-      ].slice(0, 10),
+    addToHistory(input, result, direction);
+    addToast(
+      direction === "cyrillic-to-latin"
+        ? "Kirildan Lotinga o'zgartirildi"
+        : "Lotindan Kirilga o'zgartirildi",
+      "success",
+      2000,
     );
-    addToast("Kirildan Lotinga o'zgartirildi ✓", "success", 2000);
+  }, [input, direction, convert, addToHistory, addToast]);
+
+  /* ── Swap direction ── */
+  const handleSwap = () => {
+    const newDir: Direction =
+      direction === "cyrillic-to-latin" ? "latin-to-cyrillic" : "cyrillic-to-latin";
+    setDirection(newDir);
+    // Also swap text content
+    const newInput = output;
+    const newOutput = input;
+    setInput(newInput);
+    setOutput(newOutput);
+    addToast("Yo'nalish almashtirildi", "info", 1500);
   };
 
-  const handleConvertLatinToCyrillic = () => {
+  /* ── Auto-detect & convert ── */
+  const handleAutoConvert = useCallback(() => {
     if (!input.trim()) {
-      addToast("Iltimos, o'zgartiradigan matn kiriting", "info");
+      addToast("Iltimos, matn kiriting", "info");
       return;
     }
-
-    const result = latinToCyrillic(input);
+    const detectedDir: Direction = isCyrillic(input)
+      ? "cyrillic-to-latin"
+      : "latin-to-cyrillic";
+    setDirection(detectedDir);
+    const result = autoConvert(input);
     setOutput(result);
-    setHistory((prev) =>
-      [
-        {
-          input,
-          output: result,
-          direction: "latin-to-cyrillic" as
-            | "cyrillic-to-latin"
-            | "latin-to-cyrillic",
-          timestamp: Date.now(),
-        },
-        ...prev,
-      ].slice(0, 10),
-    );
-    addToast("Lotindan Kirilga o'zgartirildi ✓", "success", 2000);
-  };
+    addToHistory(input, result, detectedDir);
+    addToast("Avtomatik aniqlandi va o'zgartirildi", "success", 2000);
+  }, [input, addToHistory, addToast]);
 
-  const handleClear = () => {
-    setInput("");
-    setOutput("");
-    setFileName("");
-    addToast("Barcha matn o'chirildi", "info", 1500);
-  };
-
-  const handleCopyResult = async () => {
+  /* ── Copy ── */
+  const handleCopy = async () => {
     if (!output.trim()) {
-      addToast("Ko'chirish uchun matn yo'q", "info");
+      addToast("Nusxalash uchun matn yo'q", "info");
       return;
     }
-
-    const success = await copyToClipboard(output);
-    if (success) {
-      addToast("Nusxa olindi ✓", "success", 2000);
+    const ok = await copyToClipboard(output);
+    if (ok) {
+      setCopied(true);
+      addToast("Nusxa olindi", "success", 2000);
+      setTimeout(() => setCopied(false), 2000);
     } else {
       addToast("Ko'chirishda xato", "error");
     }
   };
 
+  /* ── Download ── */
   const handleDownload = () => {
     if (!output.trim()) {
       addToast("Yuklab olish uchun matn yo'q", "info");
       return;
     }
-
-    const filename = fileName ? fileName.replace(/\.[^/.]+$/, "") : "converted";
-    downloadAsTextFile(output, `${filename}_converted.txt`);
-    addToast("Fayl yuklab olindi ✓", "success", 2000);
+    const base = fileName ? fileName.replace(/\.[^/.]+$/, "") : "converted";
+    downloadAsTextFile(output, `${base}_converted.txt`);
+    addToast("Fayl yuklab olindi", "success", 2000);
   };
 
-  const handleFileSelected = (text: string, filename: string) => {
-    setInput(text);
-    setFileName(filename);
-    addToast(`Fayl yuklandi: ${filename} ✓`, "success", 2000);
+  /* ── Clear ── */
+  const handleClear = () => {
+    setInput("");
+    setOutput("");
+    setFileName("");
+    addToast("Tozalandi", "info", 1500);
+  };
 
-    if (realTimeEnabled) {
-      const converted = autoConvert(text);
-      setOutput(converted);
+  /* ── File ── */
+  const handleFileSelected = (text: string, name: string) => {
+    setInput(text);
+    setFileName(name);
+    addToast(`"${name}" yuklandi`, "success", 2500);
+    if (realTime) {
+      const result = convert(text, direction);
+      setOutput(result);
     }
   };
 
-  const handleHistoryItemClick = (item: ConversionHistoryItem) => {
-    setInput(item.input);
-    setOutput(item.output);
-    addToast("Konvertatsiya qayta yuklandi ✓", "success", 1500);
+  const handleFileClear = () => {
+    setFileName("");
   };
 
-  const inputCharCount = getCharacterCount(input);
+  /* ── History click ── */
+  const handleHistoryClick = (item: ConversionHistoryItem) => {
+    setInput(item.input);
+    setOutput(item.output);
+    setDirection(item.direction);
+    addToast("Tarix yuklandi", "success", 1500);
+  };
+
+  /* ── Keyboard shortcuts ── */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key === "Enter") {
+        e.preventDefault();
+        handleConvert();
+      }
+      if (mod && e.shiftKey && e.key === "C") {
+        e.preventDefault();
+        handleCopy();
+      }
+      if (mod && e.key === "k") {
+        e.preventDefault();
+        handleClear();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [handleConvert]);
+
+  /* ── Stats ── */
+  const inputCharCount  = getCharacterCount(input);
   const outputCharCount = getCharacterCount(output);
+  const inputWordCount  = getWordCount(input);
+  const outputWordCount = getWordCount(output);
+
+  const dirLabel =
+    direction === "cyrillic-to-latin" ? "Kiril → Lotin" : "Lotin → Kiril";
 
   return (
-    <div className="w-3/5 max-w-full mx-auto p-1 sm:p-2 lg:p-3">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 dark:text-white mb-2">
-          🔄 Kiril Lotin Konvertor
-        </h1>
-        <p className="text-lg text-gray-600 dark:text-gray-400">
-          O‘zbek matni va fayllarni Kiril va Lotin yozuvlari o‘rtasida tez va
-          oson konvertatsiya qiling. Matn kiriting yoki fayl yuklang — natijani
-          darhol ko‘ring.
-        </p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
+      {/* ── Hero Header ── */}
+      <header className="relative overflow-hidden bg-white dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+        <div className="absolute inset-0 bg-grid opacity-40 dark:opacity-20 pointer-events-none" />
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+          <div className="flex flex-col items-center text-center gap-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-50 dark:bg-primary-900/30 border border-primary-100 dark:border-primary-800 text-primary-700 dark:text-primary-300 text-xs font-semibold tracking-wide uppercase">
+              <Zap size={12} />
+              O'zbek yozuvi konvertori
+            </div>
+            <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-gray-900 dark:text-white">
+              Kiril{" "}
+              <span className="text-gradient">↔</span>{" "}
+              Lotin
+            </h1>
+            <p className="max-w-xl text-base text-gray-500 dark:text-gray-400 leading-relaxed">
+              O'zbek matni va fayllarni ikki yozuv o'rtasida bir zumda konvertatsiya qiling.
+              Matn kiriting yoki fayl yuklang — natijani darhol ko'ring.
+            </p>
+          </div>
+        </div>
+      </header>
 
-      {/* File Uploader */}
-      <div className="mb-6">
-        <FileUploader onFileSelected={handleFileSelected} />
-      </div>
+      {/* ── Main ── */}
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-5">
 
-      {/* Real-time Conversion Toggle */}
-      <div className="mb-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-        <ToggleSwitch
-          checked={realTimeEnabled}
-          onChange={setRealTimeEnabled}
-          label="Real vaqtda konvertatsiya (yo‘nalishni avtomatik aniqlash)"
+        {/* ── File Uploader ── */}
+        <FileUploader
+          onFileSelected={handleFileSelected}
+          onFileClear={handleFileClear}
+          currentFileName={fileName}
         />
-        <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-          {realTimeEnabled
-            ? "Siz yozganingiz sari matn avtomatik konvertatsiya qilinadi..."
-            : "Tezkor konvertatsiya uchun yoqing"}
-        </p>
-      </div>
 
-      {/* Main Content */}
-      <div className="flex gap-2 mb-6">
-        {/* Input */}
-        <div className="w-1/2">
-          <TextArea
-            label="Kirish matni"
-            value={input}
-            onChange={(e) => handleInputChange(e.target.value)}
-            placeholder="Kiril yoki Lotin matni kiriting..."
-            characterCount={inputCharCount}
+        {/* ── Direction + Real-time row ── */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4
+          p-4 card">
+          {/* Direction selector */}
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">
+              Yo'nalish:
+            </span>
+            <div className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 text-sm font-medium">
+              {(["cyrillic-to-latin", "latin-to-cyrillic"] as Direction[]).map((d) => (
+                <button
+                  key={d}
+                  onClick={() => setDirection(d)}
+                  className={`px-3 py-1.5 transition-colors ${
+                    direction === d
+                      ? "bg-primary-600 text-white"
+                      : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  }`}
+                >
+                  {d === "cyrillic-to-latin" ? "Kiril → Lotin" : "Lotin → Kiril"}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Real-time toggle */}
+          <ToggleSwitch
+            checked={realTime}
+            onChange={setRealTime}
+            label="Real vaqtda"
+            description="Yozganingizda avtomatik konvertatsiya"
           />
         </div>
 
-        {/* Output */}
-        <div className="w-1/2">
-          <TextArea
-            label="Chiqish matni"
-            value={output}
-            readOnly
-            placeholder="Konvertatsiya qilingan matn shu yerda ko‘rinadi..."
-            characterCount={outputCharCount}
-          />
-        </div>
-      </div>
-
-      {/* Conversion Buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <Button
-          onClick={handleConvertCyrillicToLatin}
-          variant="primary"
-          className="w-full inline-flex items-center justify-center gap-2"
-        >
-          <ArrowRight size={20} />
-          Kiril → Lotin
-        </Button>
-        <Button
-          onClick={handleConvertLatinToCyrillic}
-          variant="primary"
-          className="w-full inline-flex items-center justify-center gap-2"
-        >
-          Lotin → Kiril
-          <ArrowLeft size={20} />
-        </Button>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
-        <Button
-          onClick={handleCopyResult}
-          variant="success"
-          className="w-full inline-flex items-center justify-center gap-2"
-        >
-          <Copy size={18} />
-          Nusxalash
-        </Button>
-        <Button
-          onClick={handleDownload}
-          variant="success"
-          className="w-full inline-flex items-center justify-center gap-2"
-        >
-          <Download size={18} />
-          Yuklab olish
-        </Button>
-        <Button
-          onClick={handleClear}
-          variant="danger"
-          className="w-full inline-flex items-center justify-center gap-2"
-        >
-          <Trash2 size={18} />
-          O'chirish
-        </Button>
-      </div>
-
-      {/* File Name Display */}
-      {fileName && (
-        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg mb-6 flex items-center gap-3">
-          <FileText className="text-blue-600 dark:text-blue-400" size={20} />
-          <p className="text-sm text-gray-700 dark:text-gray-300">
-            <span className="font-medium">{fileName}</span> fayli bilan
-            ishlanmoqda
-          </p>
-        </div>
-      )}
-
-      {/* Info Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-2">
-            <BarChart3
-              size={18}
-              className="text-primary-600 dark:text-primary-400"
+        {/* ── Text Areas ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          {/* Input */}
+          <div className="card p-4">
+            <TextArea
+              label="Kirish matni"
+              badge={direction === "cyrillic-to-latin" ? "Kiril" : "Lotin"}
+              value={input}
+              onChange={(e) => handleInputChange(e.target.value)}
+              placeholder={
+                direction === "cyrillic-to-latin"
+                  ? "Kiril matnini kiriting..."
+                  : "Lotin matnini kiriting..."
+              }
+              characterCount={inputCharCount}
+              wordCount={inputWordCount}
             />
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Kirish statistikasi
-            </h3>
           </div>
-          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-            {inputCharCount}
-          </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            belgi (bo‘sh joylar hisobga olinmagan)
-          </p>
-        </div>
 
-        <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-2">
-            <BarChart3
-              size={18}
-              className="text-primary-600 dark:text-primary-400"
+          {/* Swap button (center, visible on lg) */}
+          <div className="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center justify-center" style={{ marginTop: "calc(4rem + 16px)" }}>
+          </div>
+
+          {/* Output */}
+          <div className="card p-4">
+            <TextArea
+              label="Chiqish matni"
+              badge={direction === "cyrillic-to-latin" ? "Lotin" : "Kiril"}
+              value={output}
+              readOnly
+              placeholder="Konvertatsiya natijasi shu yerda ko'rinadi..."
+              characterCount={outputCharCount}
+              wordCount={outputWordCount}
             />
-            <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-              Chiqish statistikasi
-            </h3>
           </div>
-          <p className="text-3xl font-bold text-primary-600 dark:text-primary-400">
-            {outputCharCount}
-          </p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">
-            belgi (bo'sh joylar hisob qilinmadi)
-          </p>
         </div>
-      </div>
 
-      {/* History */}
-      {history.length > 0 && (
-        <div className="pt-8 border-t border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-2 mb-4">
-            <History size={20} className="text-gray-900 dark:text-white" />
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-              So'nggi konvertatsiyalar
-            </h3>
-          </div>
-          <div className="space-y-2 max-h-64 overflow-y-auto">
-            {history.map((item) => (
-              <div
-                key={item.timestamp}
-                onClick={() => handleHistoryItemClick(item)}
-                className="p-3 bg-gray-50 dark:bg-gray-800 rounded border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-750 transition-colors cursor-pointer"
-              >
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-1 font-medium">
-                  {item.direction === "cyrillic-to-latin"
-                    ? "Kiril → Lotin"
-                    : "Lotin → Kiril"}
-                </p>
-                <p className="text-sm text-gray-700 dark:text-gray-300 truncate">
-                  {item.input}
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400 truncate mt-1">
-                  → {item.output}
-                </p>
+        {/* ── Action Buttons ── */}
+        <div className="flex flex-wrap gap-3">
+          {/* Convert */}
+          <Button
+            onClick={handleConvert}
+            variant="primary"
+            size="md"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 min-w-[140px]"
+          >
+            <Zap size={16} />
+            {dirLabel}
+          </Button>
+
+          {/* Auto-detect */}
+          <Button
+            onClick={handleAutoConvert}
+            variant="secondary"
+            size="md"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
+          >
+            <ArrowLeftRight size={16} />
+            Avtomatik
+          </Button>
+
+          {/* Swap */}
+          <Button
+            onClick={handleSwap}
+            variant="secondary"
+            size="md"
+            className="inline-flex items-center justify-center gap-2"
+            title="Kirish va chiqishni almashtirish"
+          >
+            <ArrowLeftRight size={16} />
+            Almashtirish
+          </Button>
+
+          <div className="flex-1 hidden sm:block" />
+
+          {/* Copy */}
+          <Button
+            onClick={handleCopy}
+            variant="success"
+            size="md"
+            className="inline-flex items-center justify-center gap-2"
+          >
+            {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
+            {copied ? "Nusxalandi!" : "Nusxalash"}
+          </Button>
+
+          {/* Download */}
+          <Button
+            onClick={handleDownload}
+            variant="success"
+            size="md"
+            className="inline-flex items-center justify-center gap-2"
+          >
+            <Download size={16} />
+            Yuklab olish
+          </Button>
+
+          {/* Clear */}
+          <Button
+            onClick={handleClear}
+            variant="danger"
+            size="md"
+            className="inline-flex items-center justify-center gap-2"
+          >
+            <Trash2 size={16} />
+            Tozalash
+          </Button>
+        </div>
+
+        {/* ── Stats ── */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {[
+            { label: "Kirish belgilari", value: inputCharCount.toLocaleString() },
+            { label: "Kirish so'zlari",  value: inputWordCount.toLocaleString() },
+            { label: "Chiqish belgilari", value: outputCharCount.toLocaleString() },
+            { label: "Chiqish so'zlari",  value: outputWordCount.toLocaleString() },
+          ].map((stat) => (
+            <div key={stat.label} className="card p-4 text-center">
+              <p className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                {stat.value}
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stat.label}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* ── History ── */}
+        {history.length > 0 && (
+          <div className="card overflow-hidden">
+            <button
+              onClick={() => setShowHistory((v) => !v)}
+              className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+            >
+              <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                <History size={16} />
+                So'nggi konvertatsiyalar
+                <span className="ml-1 px-1.5 py-0.5 rounded-full bg-gray-100 dark:bg-gray-700 text-xs text-gray-500 dark:text-gray-400">
+                  {history.length}
+                </span>
               </div>
-            ))}
-          </div>
-        </div>
-      )}
+              {showHistory ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+            </button>
 
-      {/* Keyboard Shortcuts Hints */}
-      <div className="mt-8 pt-8 border-t border-gray-200 dark:border-gray-700">
-        <div className="text-xs text-gray-600 dark:text-gray-400 space-y-2">
-          <p className="font-medium text-gray-700 dark:text-gray-300 mb-3">
-            ⌨️ Klaviatura yorliqlari:
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-              <Keyboard
-                size={16}
-                className="text-primary-600 dark:text-primary-400 flex-shrink-0"
-              />
-              <span>
-                <span className="font-medium">Ctrl+Enter</span> - Avtomatik
-                konvertatsiya
-              </span>
-            </div>
-            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-              <Copy
-                size={16}
-                className="text-primary-600 dark:text-primary-400 flex-shrink-0"
-              />
-              <span>
-                <span className="font-medium">Ctrl+Shift+C</span> - Nusxalash
-              </span>
-            </div>
-            <div className="flex items-center gap-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-              <Trash2
-                size={16}
-                className="text-primary-600 dark:text-primary-400 flex-shrink-0"
-              />
-              <span>
-                <span className="font-medium">Ctrl+K</span> - O'chirish
-              </span>
-            </div>
+            {showHistory && (
+              <div className="border-t border-gray-100 dark:border-gray-700 divide-y divide-gray-50 dark:divide-gray-800 max-h-72 overflow-y-auto">
+                {history.map((item) => (
+                  <button
+                    key={item.timestamp}
+                    onClick={() => handleHistoryClick(item)}
+                    className="w-full text-left px-5 py-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-xs font-semibold text-primary-600 dark:text-primary-400">
+                        {item.direction === "cyrillic-to-latin" ? "Kiril → Lotin" : "Lotin → Kiril"}
+                      </span>
+                      <span className="text-xs text-gray-400 dark:text-gray-500">
+                        {new Date(item.timestamp).toLocaleTimeString("uz-UZ", {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700 dark:text-gray-300 truncate">{item.input}</p>
+                    <p className="text-sm text-gray-400 dark:text-gray-500 truncate">→ {item.output}</p>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
+        )}
+
+        {/* ── Keyboard Shortcuts ── */}
+        <div className="card overflow-hidden">
+          <button
+            onClick={() => setShowShortcuts((v) => !v)}
+            className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+              <Keyboard size={16} />
+              Klaviatura yorliqlari
+            </div>
+            {showShortcuts ? <ChevronUp size={16} className="text-gray-400" /> : <ChevronDown size={16} className="text-gray-400" />}
+          </button>
+
+          {showShortcuts && (
+            <div className="border-t border-gray-100 dark:border-gray-700 px-5 py-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {[
+                  { keys: "Ctrl + Enter", desc: "Konvertatsiya qilish" },
+                  { keys: "Ctrl + Shift + C", desc: "Natijani nusxalash" },
+                  { keys: "Ctrl + K", desc: "Hammasini tozalash" },
+                ].map((s) => (
+                  <div
+                    key={s.keys}
+                    className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 dark:bg-gray-800"
+                  >
+                    <kbd className="px-2 py-1 text-xs font-mono font-semibold bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-md shadow-sm text-gray-700 dark:text-gray-300 whitespace-nowrap">
+                      {s.keys}
+                    </kbd>
+                    <span className="text-xs text-gray-500 dark:text-gray-400">{s.desc}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+
+
+
+      </main>
+
+      {/* ── Footer ── */}
+      <footer className="mt-8 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400 dark:text-gray-500">
+          <span>© 2025 Kiril ↔ Lotin Konvertor</span>
+          <span>O'zbek yozuvi · MIT Litsenziya</span>
+        </div>
+      </footer>
     </div>
   );
 }

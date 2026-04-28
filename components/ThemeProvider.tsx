@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { Moon, Sun } from "lucide-react";
-import { Button } from "./Button";
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<"light" | "dark">("light");
@@ -10,23 +9,18 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
-    // Check system preference
-    const prefersDark = window.matchMedia(
-      "(prefers-color-scheme: dark)"
-    ).matches;
     const savedTheme = localStorage.getItem("theme") as "light" | "dark" | null;
-    const initialTheme = savedTheme || (prefersDark ? "dark" : "light");
-
+    const initialTheme = savedTheme || "light";
     setTheme(initialTheme);
     applyTheme(initialTheme);
   }, []);
 
   const applyTheme = (newTheme: "light" | "dark") => {
-    const htmlElement = document.documentElement;
+    const html = document.documentElement;
     if (newTheme === "dark") {
-      htmlElement.classList.add("dark");
+      html.classList.add("dark");
     } else {
-      htmlElement.classList.remove("dark");
+      html.classList.remove("dark");
     }
     localStorage.setItem("theme", newTheme);
   };
@@ -41,24 +35,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      {/* Theme Toggle Button */}
       <div className="fixed top-4 right-4 z-40">
-        <Button
+        <button
           onClick={toggleTheme}
-          variant="secondary"
-          size="sm"
           aria-label="Temani o'zgartirish"
           title={theme === "light" ? "Tungi rejimga o'tish" : "Kun rejimiga o'tish"}
-          className="inline-flex items-center justify-center"
+          className="
+            w-9 h-9 flex items-center justify-center rounded-xl
+            bg-white dark:bg-gray-800
+            border border-gray-200 dark:border-gray-700
+            text-gray-600 dark:text-gray-300
+            hover:bg-gray-50 dark:hover:bg-gray-700
+            hover:text-primary-600 dark:hover:text-primary-400
+            shadow-sm hover:shadow-md
+            transition-all duration-200
+          "
         >
-          {theme === "light" ? (
-            <Moon size={18} />
-          ) : (
-            <Sun size={18} />
-          )}
-        </Button>
+          {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+        </button>
       </div>
-
       {children}
     </>
   );
