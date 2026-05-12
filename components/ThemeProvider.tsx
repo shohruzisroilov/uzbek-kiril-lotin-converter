@@ -38,8 +38,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       <div className="fixed top-4 right-4 z-40">
         <button
           onClick={toggleTheme}
-          aria-label="Temani o'zgartirish"
-          title={theme === "light" ? "Tungi rejimga o'tish" : "Kun rejimiga o'tish"}
+          aria-label="Темани ўзгартириш"
+          title={theme === "light" ? "Тунги режимга ўтиш" : "Кун режимига ўтиш"}
           className="
             w-9 h-9 flex items-center justify-center rounded-xl
             bg-white dark:bg-gray-800

@@ -84,46 +84,105 @@ export function downloadAsTextFile(content: string, filename: string): void {
   document.body.removeChild(element);
 }
 
-/**
- * Extract text from .docx file
- */
-export async function extractTextFromDocx(file: File): Promise<string> {
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const { Document } = await import("docx");
+function escapeXml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;");
+}
 
-    // For docx parsing, we'll use a simple approach
-    // In production, you might want to use a dedicated library
-    const text = await extractDocxText(arrayBuffer);
-    return text;
-  } catch (error) {
-    console.error("Failed to extract text from DOCX:", error);
-    throw new Error("Failed to read .docx file");
-  }
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 /**
- * Helper function to extract text from docx buffer
+ * Take an existing .docx file, transform every run of text via `transform`,
+ * and download the result as a new .docx — preserving styling and layout.
  */
-async function extractDocxText(arrayBuffer: ArrayBuffer): Promise<string> {
-  // This is a simplified approach - for production, use a proper docx library
-  const bytes = new Uint8Array(arrayBuffer);
-  const text = new TextDecoder().decode(bytes);
+export async function downloadConvertedDocx(
+  file: File,
+  transform: (text: string) => string,
+  filename: string,
+): Promise<void> {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
 
-  // Extract text between XML tags (very basic parsing)
-  const matches = text.match(/<a:t>([^<]*)<\/a:t>|<w:t>([^<]*)<\/w:t>/g) || [];
-  const extracted = matches
-    .map((match) => {
-      const content = match
-        .replace(/<\/?[aw]:t>/g, "")
-        .replace(/&amp;/g, "&")
-        .replace(/&lt;/g, "<")
-        .replace(/&gt;/g, ">");
-      return content;
-    })
-    .join("");
+  // Convert text in the main document and any header/footer parts.
+  const targets = Object.keys(zip.files).filter(
+    (p) =>
+      p === "word/document.xml" ||
+      /^word\/(header|footer)\d*\.xml$/.test(p) ||
+      p === "word/footnotes.xml" ||
+      p === "word/endnotes.xml",
+  );
 
-  return extracted || text.substring(0, 5000);
+  for (const path of targets) {
+    const entry = zip.file(path);
+    if (!entry) continue;
+    const xml = await entry.async("string");
+    const updated = xml.replace(
+      /(<w:t(?:\s[^>]*)?>)([\s\S]*?)(<\/w:t>)/g,
+      (_m, open, inner, close) => {
+        const decoded = inner
+          .replace(/&amp;/g, "&")
+          .replace(/&lt;/g, "<")
+          .replace(/&gt;/g, ">")
+          .replace(/&quot;/g, "\"")
+          .replace(/&apos;/g, "'");
+        return open + escapeXml(transform(decoded)) + close;
+      },
+    );
+    zip.file(path, updated);
+  }
+
+  const blob = await zip.generateAsync({
+    type: "blob",
+    mimeType:
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  });
+  downloadBlob(blob, filename);
+}
+
+/**
+ * Extract text from a .docx file by unzipping the archive and parsing
+ * word/document.xml. A .docx is a ZIP container — reading it as plain
+ * text yields garbage (the PK header etc.), so JSZip is required.
+ */
+export async function extractTextFromDocx(file: File): Promise<string> {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(await file.arrayBuffer());
+  const docXml = zip.file("word/document.xml");
+  if (!docXml) {
+    throw new Error("word/document.xml топилмади — бу яроқли .docx файл эмас");
+  }
+  const xml = await docXml.async("string");
+
+  // Replace paragraph and line breaks with newlines, drop other tags,
+  // then decode XML entities.
+  const withBreaks = xml
+    .replace(/<w:p[ >][^]*?(?=<\/w:p>)<\/w:p>/g, (m) =>
+      m.replace(/<w:br\s*\/?>/g, "\n") + "\n",
+    )
+    .replace(/<w:tab\s*\/?>/g, "\t");
+
+  const text = withBreaks
+    .replace(/<[^>]+>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&quot;/g, "\"")
+    .replace(/&apos;/g, "'")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+
+  return text;
 }
 
 /**

@@ -10,7 +10,7 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "docx": "^8.5.0",
+    "jszip": "^3.10.1",
     "lucide-react": "^0.263.1",
     "next": "^15.0.0",
     "react": "^19.0.0",

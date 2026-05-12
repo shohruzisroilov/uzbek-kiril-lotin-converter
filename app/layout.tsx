@@ -1,32 +1,64 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import { ToastProvider } from "@/components/ToastContext";
 import { ToastContainer } from "@/components/ToastContainer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "@/globals.css";
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "https://kiril-lotin.uz";
+
+const inter = Inter({
+  subsets: ["latin", "cyrillic", "cyrillic-ext"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#ffffff" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0a" },
+  ],
+};
+
 export const metadata: Metadata = {
-  title: "Kiril ↔ Lotin Konvertor | O'zbek Yozuvi",
+  metadataBase: new URL(SITE_URL),
+  title: "Кирил ↔ Лотин Конвертор | Ўзбек Ёзуви",
   description:
-    "O'zbek matni va fayllarni Kiril ↔ Lotin yozuvlari o'rtasida tez va oson konvertatsiya qiling. Matn kiriting yoki fayl yuklang va natijani darhol oling.",
+    "Ўзбек матни ва файлларни Кирил ↔ Лотин ёзувлари ўртасида тез ва осон конвертация қилинг. Матн киритинг ёки файл юкланг ва натижани дарҳол олинг.",
   keywords: [
-    "kiril lotin konvertor",
-    "o'zbek konvertor",
-    "kiril",
-    "lotin",
-    "matn",
-    "fayl",
+    "кирил лотин конвертор",
+    "ўзбек конвертор",
+    "кирил",
+    "лотин",
+    "матн",
+    "файл",
     "docx",
     "txt",
-    "transliteratsiya",
+    "транслитерация",
+    "ёзув ўгириш",
   ],
-  authors: [{ name: "Kiril Lotin Konvertor" }],
-  openGraph: {
-    title: "Kiril ↔ Lotin Konvertor",
-    description:
-      "O'zbek matni va fayllarni Kiril va Lotin yozuvlari o'rtasida oson va tez konvertatsiya qiling.",
-    type: "website",
-    locale: "uz_UZ",
+  authors: [{ name: "Кирил Лотин Конвертор" }],
+  alternates: {
+    canonical: "/",
+    languages: {
+      "uz-Cyrl": "/",
+    },
   },
+  openGraph: {
+    title: "Кирил ↔ Лотин Конвертор",
+    description:
+      "Ўзбек матни ва файлларни Кирил ва Лотин ёзувлари ўртасида осон ва тез конвертация қилинг.",
+    type: "website",
+    locale: "uz",
+    url: SITE_URL,
+    siteName: "Кирил ↔ Лотин Конвертор",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Кирил ↔ Лотин Конвертор",
+    description: "Ўзбек матни ва файлларни Кирил ↔ Лотин ёзувлари ўртасида тез конвертация қилинг.",
+  },
+  robots: { index: true, follow: true },
 };
 
 export default function RootLayout({
@@ -35,8 +67,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz" suppressHydrationWarning>
-      <body className="bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white antialiased">
+    <html lang="uz-Cyrl" className={inter.variable} suppressHydrationWarning>
+      <body className="font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white antialiased">
         <ThemeProvider>
           <ToastProvider>
             {children}

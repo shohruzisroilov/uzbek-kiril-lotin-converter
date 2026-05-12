@@ -1,8 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { Upload, Loader2, FileText, X } from "lucide-react";
-import { Button } from "./Button";
+import { Upload, Loader2, FileText, X, Download, CheckCircle2 } from "lucide-react";
 import {
   isValidFileType,
   isValidFileSize,
@@ -11,17 +10,25 @@ import {
 } from "@/lib/utils";
 
 interface FileUploaderProps {
-  onFileSelected: (text: string, filename: string) => void;
+  onFileSelected: (text: string, file: File) => void;
   onFileClear?: () => void;
+  onDownload?: () => void;
   loading?: boolean;
   currentFileName?: string;
+  converting?: boolean;
+  ready?: boolean;
+  directionLabel?: string;
 }
 
 export function FileUploader({
   onFileSelected,
   onFileClear,
+  onDownload,
   loading = false,
   currentFileName,
+  converting = false,
+  ready = false,
+  directionLabel,
 }: FileUploaderProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>("");
@@ -36,12 +43,12 @@ export function FileUploader({
 
     try {
       if (!isValidFileType(file)) {
-        setError(".txt yoki .docx faylini yuklang");
+        setError(".txt ёки .docx файлини юкланг");
         return;
       }
 
       if (!isValidFileSize(file)) {
-        setError("Fayl hajmi 5MB dan kam bo'lishi kerak");
+        setError("Файл ҳажми 5MB дан кам бўлиши керак");
         return;
       }
 
@@ -54,18 +61,18 @@ export function FileUploader({
       ) {
         text = await extractTextFromDocx(file);
       } else {
-        setError("Noma'lum fayl turi");
+        setError("Номаълум файл тури");
         return;
       }
 
       if (!text.trim()) {
-        setError("Fayl bo'sh yoki o'qib bo'lmadi");
+        setError("Файл бўш ёки ўқиб бўлмади");
         return;
       }
 
-      onFileSelected(text, file.name);
+      onFileSelected(text, file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Faylni o'qishda xatolik yuz berdi");
+      setError(err instanceof Error ? err.message : "Файлни ўқишда хатолик юз берди");
     } finally {
       setIsProcessing(false);
       if (fileInputRef.current) {
@@ -100,16 +107,41 @@ export function FileUploader({
       {currentFileName ? (
         <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl">
           <FileText size={18} className="text-primary-600 dark:text-primary-400 flex-shrink-0" />
-          <span className="text-sm font-medium text-primary-700 dark:text-primary-300 flex-1 truncate">
-            {currentFileName}
-          </span>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-primary-700 dark:text-primary-300 truncate">
+              {currentFileName}
+            </p>
+            {converting && (
+              <p className="text-xs text-primary-500 dark:text-primary-400 flex items-center gap-1 mt-0.5">
+                <Loader2 size={11} className="animate-spin" />
+                Конвертация қилинмоқда{directionLabel ? ` (${directionLabel})` : ""}…
+              </p>
+            )}
+            {ready && !converting && (
+              <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
+                <CheckCircle2 size={11} />
+                Тайёр{directionLabel ? ` · ${directionLabel}` : ""}
+              </p>
+            )}
+          </div>
+
+          {ready && !converting && onDownload && (
+            <button
+              onClick={onDownload}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors flex-shrink-0"
+            >
+              <Download size={14} />
+              Юклаб олиш
+            </button>
+          )}
+
           <button
             onClick={() => {
               onFileClear?.();
               setError("");
             }}
             className="text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0"
-            aria-label="Faylni olib tashlash"
+            aria-label="Файлни олиб ташлаш"
           >
             <X size={16} />
           </button>
@@ -129,8 +161,8 @@ export function FileUploader({
             )}
             <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
               {isProcessing
-                ? "Yuklanmoqda..."
-                : "Fayl yuklash yoki bu yerga tashlang (.txt, .docx · max 5MB)"}
+                ? "Юкланмоқда..."
+                : "Файл юклаш ёки бу ерга ташланг (.txt, .docx · макс 5MB)"}
             </span>
           </div>
         </div>
