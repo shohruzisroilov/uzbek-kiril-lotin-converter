@@ -1,6 +1,6 @@
 # Kiril ↔ Lotin Konvertor
 
-O'zbek matni va fayllarni Kiril va Lotin yozuvlari o'rtasida tez konvertatsiya qiluvchi veb-ilova.
+O'zbek matn va fayllarni Kiril va Lotin yozuvlari o'rtasida tez konvertatsiya qiluvchi vebsayt.
 
 ## Texnologiyalar
 
