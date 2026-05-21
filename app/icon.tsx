@@ -13,33 +13,15 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#0ea5e9",
+          background: "#0284c7",
           borderRadius: 14,
-          letterSpacing: -3,
+          color: "#ffffff",
+          fontSize: 40,
+          fontWeight: 800,
+          letterSpacing: -2,
         }}
       >
-        <span
-          style={{
-            fontSize: 42,
-            fontWeight: 900,
-            background: "linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #6ee7b7 100%)",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          K
-        </span>
-        <span
-          style={{
-            fontSize: 42,
-            fontWeight: 900,
-            background: "linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #6ee7b7 100%)",
-            backgroundClip: "text",
-            color: "transparent",
-          }}
-        >
-          L
-        </span>
+        KL
       </div>
     ),
     size,
