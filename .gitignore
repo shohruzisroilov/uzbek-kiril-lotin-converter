@@ -13,6 +13,7 @@ yarn.lock
 /out/
 .next/
 dist/
+*.tsbuildinfo
 
 # Production
 /build

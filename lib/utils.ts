@@ -1,24 +1,3 @@
-/**
- * Debounce function to delay execution
- */
-export function debounce<T extends (...args: any[]) => any>(
-  func: T,
-  delay: number,
-): (...args: Parameters<T>) => void {
-  let timeoutId: NodeJS.Timeout | null = null;
-
-  return (...args: Parameters<T>) => {
-    if (timeoutId) clearTimeout(timeoutId);
-    timeoutId = setTimeout(() => {
-      func(...args);
-      timeoutId = null;
-    }, delay);
-  };
-}
-
-/**
- * Save text to localStorage
- */
 export function saveToLocalStorage(key: string, value: string): void {
   if (typeof window !== "undefined") {
     try {
@@ -29,9 +8,6 @@ export function saveToLocalStorage(key: string, value: string): void {
   }
 }
 
-/**
- * Get text from localStorage
- */
 export function getFromLocalStorage(key: string): string | null {
   if (typeof window !== "undefined") {
     try {
@@ -44,33 +20,26 @@ export function getFromLocalStorage(key: string): string | null {
   return null;
 }
 
-/**
- * Copy text to clipboard
- */
 export async function copyToClipboard(text: string): Promise<boolean> {
   try {
     if (navigator.clipboard) {
       await navigator.clipboard.writeText(text);
       return true;
-    } else {
-      // Fallback for older browsers
-      const textArea = document.createElement("textarea");
-      textArea.value = text;
-      document.body.appendChild(textArea);
-      textArea.select();
-      const success = document.execCommand("copy");
-      document.body.removeChild(textArea);
-      return success;
     }
+    // Fallback for older browsers
+    const textArea = document.createElement("textarea");
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    const success = document.execCommand("copy");
+    document.body.removeChild(textArea);
+    return success;
   } catch (error) {
     console.error("Failed to copy to clipboard:", error);
     return false;
   }
 }
 
-/**
- * Download text as a .txt file
- */
 export function downloadAsTextFile(content: string, filename: string): void {
   const element = document.createElement("a");
   element.setAttribute(
@@ -103,8 +72,8 @@ function downloadBlob(blob: Blob, filename: string): void {
 }
 
 /**
- * Take an existing .docx file, transform every run of text via `transform`,
- * and download the result as a new .docx — preserving styling and layout.
+ * Transform every run of text in a .docx via `transform` and download the
+ * result — preserving styling and layout.
  */
 export async function downloadConvertedDocx(
   file: File,
@@ -114,7 +83,6 @@ export async function downloadConvertedDocx(
   const { default: JSZip } = await import("jszip");
   const zip = await JSZip.loadAsync(await file.arrayBuffer());
 
-  // Convert text in the main document and any header/footer parts.
   const targets = Object.keys(zip.files).filter(
     (p) =>
       p === "word/document.xml" ||
@@ -151,9 +119,8 @@ export async function downloadConvertedDocx(
 }
 
 /**
- * Extract text from a .docx file by unzipping the archive and parsing
- * word/document.xml. A .docx is a ZIP container — reading it as plain
- * text yields garbage (the PK header etc.), so JSZip is required.
+ * A .docx is a ZIP container — reading it as plain text yields garbage,
+ * so we unzip and parse word/document.xml.
  */
 export async function extractTextFromDocx(file: File): Promise<string> {
   const { default: JSZip } = await import("jszip");
@@ -164,15 +131,13 @@ export async function extractTextFromDocx(file: File): Promise<string> {
   }
   const xml = await docXml.async("string");
 
-  // Replace paragraph and line breaks with newlines, drop other tags,
-  // then decode XML entities.
   const withBreaks = xml
     .replace(/<w:p[ >][^]*?(?=<\/w:p>)<\/w:p>/g, (m) =>
       m.replace(/<w:br\s*\/?>/g, "\n") + "\n",
     )
     .replace(/<w:tab\s*\/?>/g, "\t");
 
-  const text = withBreaks
+  return withBreaks
     .replace(/<[^>]+>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
@@ -181,20 +146,12 @@ export async function extractTextFromDocx(file: File): Promise<string> {
     .replace(/&apos;/g, "'")
     .replace(/\n{3,}/g, "\n\n")
     .trim();
-
-  return text;
 }
 
-/**
- * Extract text from .txt file
- */
 export async function extractTextFromTxt(file: File): Promise<string> {
   return file.text();
 }
 
-/**
- * Validate file type
- */
 export function isValidFileType(file: File): boolean {
   const validTypes = [
     "text/plain",
@@ -202,18 +159,12 @@ export function isValidFileType(file: File): boolean {
   ];
   const validExtensions = [".txt", ".docx"];
 
-  const isValidType = validTypes.includes(file.type);
-  const isValidExtension = validExtensions.some((ext) =>
-    file.name.toLowerCase().endsWith(ext),
+  return (
+    validTypes.includes(file.type) ||
+    validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext))
   );
-
-  return isValidType || isValidExtension;
 }
 
-/**
- * Validate file size (max 5MB)
- */
 export function isValidFileSize(file: File, maxSizeMB: number = 5): boolean {
-  const maxBytes = maxSizeMB * 1024 * 1024;
-  return file.size <= maxBytes;
+  return file.size <= maxSizeMB * 1024 * 1024;
 }

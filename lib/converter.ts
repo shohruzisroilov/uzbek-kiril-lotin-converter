@@ -50,10 +50,6 @@ export function isCyrillic(text: string): boolean {
   return /[Ѐ-ӿ]/.test(text);
 }
 
-export function isLatin(text: string): boolean {
-  return /[a-zA-Z]/.test(text);
-}
-
 function isLetter(ch: string | undefined): boolean {
   return !!ch && /[a-zA-Zа-яА-ЯёЁўЎқҚғҒҳҲңҢ]/.test(ch);
 }
@@ -117,18 +113,3 @@ export function latinToCyrillic(text: string): string {
   return result;
 }
 
-// ─── Auto-detect & convert ───────────────────────────────────────────────────
-
-export function autoConvert(text: string): string {
-  const cyrCount = (text.match(/[Ѐ-ӿ]/g) ?? []).length;
-  const latCount = (text.match(/[a-zA-Z]/g) ?? []).length;
-
-  if (cyrCount === 0 && latCount === 0) return text;
-  return cyrCount >= latCount ? cyrillicToLatin(text) : latinToCyrillic(text);
-}
-
-// ─── Stats ───────────────────────────────────────────────────────────────────
-
-export function getCharacterCount(text: string): number {
-  return text.replace(/\s/g, "").length;
-}

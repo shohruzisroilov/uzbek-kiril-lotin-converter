@@ -13,15 +13,15 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "linear-gradient(135deg, #0ea5e9, #0369a1)",
+          background: "#0ea5e9",
           color: "white",
-          fontSize: 36,
-          fontWeight: 800,
-          letterSpacing: -1,
-          borderRadius: 12,
+          fontSize: 40,
+          fontWeight: 700,
+          letterSpacing: -2,
+          borderRadius: 14,
         }}
       >
-        К↔Л
+        Аa
       </div>
     ),
     size,
