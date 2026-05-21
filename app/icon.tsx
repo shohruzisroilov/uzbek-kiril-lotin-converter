@@ -14,14 +14,32 @@ export default function Icon() {
           alignItems: "center",
           justifyContent: "center",
           background: "#0ea5e9",
-          color: "white",
-          fontSize: 40,
-          fontWeight: 700,
-          letterSpacing: -2,
           borderRadius: 14,
+          letterSpacing: -3,
         }}
       >
-        Аa
+        <span
+          style={{
+            fontSize: 42,
+            fontWeight: 900,
+            background: "linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #6ee7b7 100%)",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          K
+        </span>
+        <span
+          style={{
+            fontSize: 42,
+            fontWeight: 900,
+            background: "linear-gradient(135deg, #ffffff 0%, #d1fae5 60%, #6ee7b7 100%)",
+            backgroundClip: "text",
+            color: "transparent",
+          }}
+        >
+          L
+        </span>
       </div>
     ),
     size,

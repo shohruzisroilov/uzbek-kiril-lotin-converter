@@ -18,6 +18,11 @@
   html {
     scroll-behavior: smooth;
   }
+
+  /* Eye-friendly warm whites in light mode (instead of pure white / cold gray) */
+  html:not(.dark) .bg-gray-50 { background-color: #f6f5f1; }
+  html:not(.dark) .bg-white { background-color: #fbfaf7; }
+  html:not(.dark) body { background-color: #f6f5f1; }
 }
 
 @layer components {

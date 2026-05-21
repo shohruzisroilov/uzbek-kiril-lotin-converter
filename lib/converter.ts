@@ -3,45 +3,43 @@ const cyrillicToLatinMap: Record<string, string> = {
   // Uppercase
   А: "A",  Б: "B",  В: "V",  Г: "G",  Ғ: "Gʻ", Д: "D",
   Е: "E",  Ё: "Yo", Ж: "J",  З: "Z",  И: "I",  Й: "Y",
-  К: "K",  Қ: "Q",  Л: "L",  М: "M",  Н: "N",  Ң: "Ng",
+  К: "K",  Қ: "Q",  Л: "L",  М: "M",  Н: "N",
   О: "O",  П: "P",  Р: "R",  С: "S",  Т: "T",  У: "U",
   Ў: "Oʻ", Ф: "F",  Х: "X",  Ц: "Ts", Ч: "Ch", Ш: "Sh",
   Щ: "Sh", Ъ: "ʼ",  Ы: "I",  Ь: "",   Э: "E",  Ю: "Yu",
-  Я: "Ya", Ҳ: "H",  Ҷ: "Ch",
+  Я: "Ya", Ҳ: "H",
   // Lowercase
   а: "a",  б: "b",  в: "v",  г: "g",  ғ: "gʻ", д: "d",
   е: "e",  ё: "yo", ж: "j",  з: "z",  и: "i",  й: "y",
-  к: "k",  қ: "q",  л: "l",  м: "m",  н: "n",  ң: "ng",
+  к: "k",  қ: "q",  л: "l",  м: "m",  н: "n",
   о: "o",  п: "p",  р: "r",  с: "s",  т: "t",  у: "u",
   ў: "oʻ", ф: "f",  х: "x",  ц: "ts", ч: "ch", ш: "sh",
   щ: "sh", ъ: "ʼ",  ы: "i",  ь: "",   э: "e",  ю: "yu",
-  я: "ya", ҳ: "h",  ҷ: "ch",
+  я: "ya", ҳ: "h",
 };
 
 // ─── Latin → Cyrillic map ────────────────────────────────────────────────────
 // Ordered longest-first so multi-char sequences match before single chars.
+// Apostrophe variants: ' (U+0027), ʻ (U+02BB), ’ (U+2019).
 const latinToCyrillicPairs: [string, string][] = [
   // 4-char
   ["shch", "щ"],
   // 2-char
-  ["sh",   "ш"],
-  ["ch",   "ч"],
-  ["ng",   "ң"],
-  ["ts",   "ц"],
-  ["yo",   "ё"],
-  ["yu",   "ю"],
-  ["ya",   "я"],
-  ["gʻ",   "ғ"],
-  ["oʻ",   "ў"],
-  ["g'",   "ғ"],
-  ["o'",   "ў"],
+  ["sh", "ш"],
+  ["ch", "ч"],
+  ["ts", "ц"],
+  ["yo", "ё"],
+  ["yu", "ю"],
+  ["ya", "я"],
+  ["gʻ", "ғ"], ["g'", "ғ"], ["g’", "ғ"],
+  ["oʻ", "ў"], ["o'", "ў"], ["o’", "ў"],
   // 1-char
   ["a", "а"], ["b", "б"], ["v", "в"], ["g", "г"], ["d", "д"],
   ["f", "ф"], ["h", "ҳ"], ["i", "и"], ["j", "ж"], ["k", "к"],
   ["l", "л"], ["m", "м"], ["n", "н"], ["o", "о"], ["p", "п"],
   ["q", "қ"], ["r", "р"], ["s", "с"], ["t", "т"], ["u", "у"],
   ["w", "в"], ["x", "х"], ["y", "й"], ["z", "з"],
-  ["'", "ъ"], ["ʼ", "ъ"],
+  ["'", "ъ"], ["ʼ", "ъ"], ["’", "ъ"],
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
@@ -51,7 +49,7 @@ export function isCyrillic(text: string): boolean {
 }
 
 function isLetter(ch: string | undefined): boolean {
-  return !!ch && /[a-zA-Zа-яА-ЯёЁўЎқҚғҒҳҲңҢ]/.test(ch);
+  return !!ch && /[a-zA-Zа-яА-ЯёЁўЎқҚғҒҳҲ]/.test(ch);
 }
 
 // ─── Cyrillic → Latin ────────────────────────────────────────────────────────
@@ -76,7 +74,9 @@ export function latinToCyrillic(text: string): string {
     // Word-initial / post-vowel "e" → "э"; otherwise "е"
     if (lower[i] === "e") {
       const prev = text[i - 1];
-      const atStart = !isLetter(prev) || /[aeiouöäюяёAEIOUаеиоуэыюяёАЕИОУЭЫЮЯЁ]/.test(prev ?? "");
+      const atStart =
+        !isLetter(prev) ||
+        /[aeiouAEIOUаеиоуэыюяёАЕИОУЭЫЮЯЁ]/.test(prev ?? "");
       const cyr = atStart ? "э" : "е";
       const isUpper = text[i] === "E";
       result += isUpper ? cyr.toUpperCase() : cyr;
@@ -88,8 +88,16 @@ export function latinToCyrillic(text: string): string {
     for (const [lat, cyr] of latinToCyrillicPairs) {
       if (lower.startsWith(lat, i)) {
         const src = text.slice(i, i + lat.length);
-        const allUpper = src === src.toUpperCase() && src !== src.toLowerCase();
-        const firstUpper = text[i] === text[i].toUpperCase() && text[i] !== text[i].toLowerCase();
+        // For uppercase detection, only count alphabetic chars (skip apostrophes).
+        const letters = src.replace(/[^a-zA-Zа-яА-ЯёЁ]/g, "");
+        const allUpper =
+          letters.length > 0 &&
+          letters === letters.toUpperCase() &&
+          letters !== letters.toLowerCase();
+        const firstChar = src[0];
+        const firstUpper =
+          firstChar === firstChar.toUpperCase() &&
+          firstChar !== firstChar.toLowerCase();
 
         if (allUpper && lat.length > 1) {
           result += cyr.toUpperCase();
@@ -112,4 +120,3 @@ export function latinToCyrillic(text: string): string {
 
   return result;
 }
-

@@ -7,6 +7,8 @@ import {
   Trash2,
   ArrowLeftRight,
   CheckCheck,
+  Check,
+  ChevronDown,
 } from "lucide-react";
 import { TextArea } from "@/components/TextArea";
 import { Button } from "@/components/Button";
@@ -189,16 +191,45 @@ export function ConverterPage() {
   const year = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 dark:bg-gray-950">
-      <header className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-5">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white text-center">
-            Кирил <span className="text-gradient">↔</span> Лотин
-          </h1>
+    <div className="bg-gray-50 dark:bg-gray-950">
+      <div className="min-h-screen flex flex-col">
+      <header className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <a href="/" className="flex items-baseline gap-2 text-center sm:text-left">
+            <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Кирил <span className="text-gradient">↔</span> Лотин
+            </h1>
+            <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
+              kirillotin.uz
+            </span>
+          </a>
+          <nav
+            aria-label="Сайт навигацияси"
+            className="flex items-center justify-center sm:justify-end gap-1 text-xs sm:text-sm overflow-x-auto -mx-2 px-2 sm:overflow-visible"
+          >
+            <a
+              href="#about"
+              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Сайт ҳақида
+            </a>
+            <a
+              href="#features"
+              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Имкониятлар
+            </a>
+            <a
+              href="#faq"
+              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Саволлар
+            </a>
+          </nav>
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col justify-center w-full max-w-5xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <main className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         <FileUploader
           onFileSelected={handleFileSelected}
           onFileClear={handleFileClear}
@@ -256,12 +287,12 @@ export function ConverterPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
           <Button
             onClick={handleSwap}
             variant="secondary"
             size="md"
-            className="inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
             title="Кириш ва натижани алмаштириш"
           >
             <ArrowLeftRight size={16} />
@@ -274,7 +305,7 @@ export function ConverterPage() {
             onClick={handleCopy}
             variant="success"
             size="md"
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
           >
             {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
             {copied ? "Нусхаланди" : "Нусхалаш"}
@@ -284,7 +315,7 @@ export function ConverterPage() {
             onClick={handleDownload}
             variant="success"
             size="md"
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
           >
             <Download size={16} />
             Юклаб олиш
@@ -294,17 +325,137 @@ export function ConverterPage() {
             onClick={handleClear}
             variant="danger"
             size="md"
-            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
           >
             <Trash2 size={16} />
             Тозалаш
           </Button>
         </div>
       </main>
+      </div>
+
+      <section
+        aria-labelledby="about-heading"
+        className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-10 sm:space-y-14">
+          {/* About */}
+          <div id="about" className="max-w-3xl mx-auto text-center space-y-4 scroll-mt-20">
+            <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+              Сайт ҳақида
+            </span>
+            <h2 id="about-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+              Кирил ↔ Лотин Конвертор
+            </h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+              Ўзбек тилидаги матнларни Кирил алифбосидан Лотин алифбосига ва тескариси,
+              Лотиндан Кирилга бир зумда ўгириш учун бепул онлайн восита.
+              Сайт <strong className="text-gray-800 dark:text-gray-200">матн</strong>,{" "}
+              <strong className="text-gray-800 dark:text-gray-200">.txt</strong> ва{" "}
+              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> файлларни қўллаб-қувватлайди —
+              docx форматланиши тўлиқ сақланиб қолади. Барча амаллар фақат сизнинг
+              браузерингизда амалга оширилади, матн серверга юборилмайди.
+            </p>
+          </div>
+
+          {/* Features */}
+          <div id="features" className="space-y-6 scroll-mt-20">
+            <div className="text-center space-y-2">
+              <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+                Имкониятлар
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Нима таклиф қилади
+              </h2>
+            </div>
+            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                "Кирил → Лотин конвертация",
+                "Лотин → Кирил конвертация",
+                "Реал вақтда автоматик ўгириш",
+                ".txt ва .docx файлларни юклаш",
+                "Docx форматлашни сақлаб қолиш",
+                "Натижани нусхалаш ва юклаб олиш",
+                "Қоронғу режим (Dark Mode)",
+                "Тўлиқ бепул, рўйхатдан ўтиш шарт эмас",
+              ].map((feat) => (
+                <li
+                  key={feat}
+                  className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40"
+                >
+                  <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400">
+                    <Check size={14} strokeWidth={3} />
+                  </span>
+                  <span className="text-sm text-gray-700 dark:text-gray-300">{feat}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* FAQ */}
+          <div id="faq" className="space-y-6 scroll-mt-20">
+            <div className="text-center space-y-2">
+              <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+                Саволлар
+              </span>
+              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+                Тез-тез бериладиган саволлар
+              </h2>
+            </div>
+            <div className="max-w-3xl mx-auto space-y-2">
+              {[
+                {
+                  q: "Кирил ↔ Лотин конвертация бепулми?",
+                  a: "Ҳа, сайтдан фойдаланиш тўлиқ бепул. Чекловлар ва рекламалар йўқ.",
+                },
+                {
+                  q: "Қандай файлларни юклаш мумкин?",
+                  a: ".txt ва .docx форматидаги файлларни юклаш мумкин. Файл максимал ҳажми 5 МБ.",
+                },
+                {
+                  q: "Конвертация натижаси сақланадими?",
+                  a: "Йўқ, барча конвертация фақат сизнинг браузерингизда амалга оширилади. Матн серверга юборилмайди ва ҳеч ким кўра олмайди.",
+                },
+                {
+                  q: "Docx файлининг форматланиши сақланадими?",
+                  a: "Ҳа, .docx файлни ўгирганингизда шрифт, ранг, шакл ва бошқа форматлаш элементлари сақланиб қолади.",
+                },
+              ].map((item) => (
+                <details
+                  key={item.q}
+                  className="group rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 overflow-hidden"
+                >
+                  <summary className="flex items-center justify-between gap-3 px-4 py-3.5 cursor-pointer list-none select-none hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-colors">
+                    <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200">
+                      {item.q}
+                    </h3>
+                    <ChevronDown
+                      size={18}
+                      className="flex-shrink-0 text-gray-400 transition-transform group-open:rotate-180"
+                    />
+                  </summary>
+                  <div className="px-4 pb-4 pt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                    {item.a}
+                  </div>
+                </details>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
 
       <footer className="border-t border-gray-100 dark:border-gray-800">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-gray-400 dark:text-gray-500">
-          <span>© {year} Кирил ↔ Лотин Конвертор. Барча ҳуқуқлар ҳимояланган.</span>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
+          <span>
+            © {year}{" "}
+            <a
+              href="https://kirillotin.uz"
+              className="font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
+            >
+              kirillotin.uz
+            </a>
+            . Барча ҳуқуқлар ҳимояланган.
+          </span>
           <span>
             Designed &amp; Developed by{" "}
             <a

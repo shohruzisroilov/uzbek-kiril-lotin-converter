@@ -5,15 +5,23 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "Кирил ↔ Лотин Конвертор",
     short_name: "Кирил ↔ Лотин",
     description:
-      "Ўзбек матни ва файлларни Кирил ↔ Лотин ёзувлари ўртасида конвертация қилиш.",
+      "Ўзбек матни ва файлларни Кирил ва Лотин ёзувлари ўртасида тез, аниқ ва бепул конвертация қилиш.",
     start_url: "/",
+    scope: "/",
     display: "standalone",
+    orientation: "portrait",
     background_color: "#ffffff",
-    theme_color: "#0284c7",
+    theme_color: "#0ea5e9",
     lang: "uz-Cyrl",
+    dir: "ltr",
+    categories: ["utilities", "productivity", "education"],
     icons: [
-      { src: "/favicon.ico", sizes: "any", type: "image/x-icon" },
-      { src: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+      {
+        src: "/icon",
+        sizes: "64x64",
+        type: "image/png",
+        purpose: "any",
+      },
     ],
   };
 }
