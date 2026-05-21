@@ -1,9 +1,12 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import Script from "next/script";
 import { ToastProvider } from "@/components/ToastContext";
 import { ToastContainer } from "@/components/ToastContainer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import "../globals.css";
+
+const GA_MEASUREMENT_ID = "G-H86QF6QEG5";
 
 const SITE_URL = "https://kirillotin.uz";
 
@@ -242,6 +245,18 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </head>
       <body className="font-sans bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white antialiased">
         <ThemeProvider>
