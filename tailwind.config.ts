@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import typography from "@tailwindcss/typography";
 
 const config: Config = {
   darkMode: "class",
@@ -46,11 +47,10 @@ const config: Config = {
       },
       boxShadow: {
         "inner-sm": "inset 0 1px 2px 0 rgb(0 0 0 / 0.05)",
-        "glow":     "0 0 20px -5px rgba(2,132,199,0.4)",
       },
     },
   },
-  plugins: [require("@tailwindcss/typography")],
+  plugins: [typography],
 };
 
 export default config;

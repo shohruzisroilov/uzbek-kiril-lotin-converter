@@ -29,7 +29,7 @@ export function SeoContent() {
               {LETTER_TABLE.map((row) => (
                 <tr key={row.cyr} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/40">
                   <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-white">{row.cyr}</td>
-                  <td className="px-4 py-2.5 font-semibold text-primary-600 dark:text-primary-400">{row.lat}</td>
+                  <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-white">{row.lat}</td>
                   <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{row.exCyr}</td>
                   <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{row.exLat}</td>
                 </tr>

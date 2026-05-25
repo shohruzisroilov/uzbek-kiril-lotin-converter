@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Onest } from "next/font/google";
 import Script from "next/script";
 import { ToastProvider } from "@/components/ToastContext";
 import { ToastContainer } from "@/components/ToastContainer";
@@ -11,7 +11,7 @@ const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID ?? "";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? "https://kirillotin.uz";
 
-const inter = Inter({
+const onest = Onest({
   subsets: ["latin", "cyrillic", "cyrillic-ext"],
   display: "swap",
   variable: "--font-inter",
@@ -279,7 +279,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="uz-Cyrl" className={inter.variable} suppressHydrationWarning>
+    <html lang="uz-Cyrl" className={onest.variable} suppressHydrationWarning>
       <head>
         <link rel="canonical" href={SITE_URL} />
         <link rel="alternate" hrefLang="uz-Cyrl" href={SITE_URL} />
@@ -333,6 +333,13 @@ export default function RootLayout({
             />
           </noscript>
         )}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:px-4 focus:py-2 focus:bg-primary-600 focus:text-white focus:rounded-lg focus:shadow-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900"
+        >
+          Асосий мазмунга ўтиш
+        </a>
+        <div className="paper-grain" aria-hidden="true" />
         <ThemeProvider>
           <ToastProvider>
             {children}

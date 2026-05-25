@@ -7,7 +7,6 @@ import {
   Trash2,
   ArrowLeftRight,
   CheckCheck,
-  Check,
   ChevronDown,
 } from "lucide-react";
 import { TextArea } from "@/components/TextArea";
@@ -110,6 +109,19 @@ export function ConverterPage() {
   }, [output, fileName, addToast]);
 
   const handleClear = useCallback(() => {
+    const hadContent =
+      input.trim() || output.trim() || fileName || sourceText;
+
+    const snapshot = {
+      input,
+      output,
+      direction,
+      fileName,
+      sourceFile,
+      sourceText,
+      fileConverted,
+    };
+
     setInput("");
     setOutput("");
     setFileName("");
@@ -119,7 +131,36 @@ export function ConverterPage() {
     setFileConverting(false);
     saveToLocalStorage("converter-input", "");
     saveToLocalStorage("converter-output", "");
-  }, []);
+
+    if (hadContent) {
+      addToast("Тозаланди", "info", {
+        duration: 6000,
+        action: {
+          label: "Бекор қилиш",
+          onClick: () => {
+            setInput(snapshot.input);
+            setOutput(snapshot.output);
+            setDirection(snapshot.direction);
+            setFileName(snapshot.fileName);
+            setSourceFile(snapshot.sourceFile);
+            setSourceText(snapshot.sourceText);
+            setFileConverted(snapshot.fileConverted);
+            saveToLocalStorage("converter-input", snapshot.input);
+            saveToLocalStorage("converter-output", snapshot.output);
+          },
+        },
+      });
+    }
+  }, [
+    input,
+    output,
+    direction,
+    fileName,
+    sourceFile,
+    sourceText,
+    fileConverted,
+    addToast,
+  ]);
 
   const handleFileSelected = (text: string, file: File) => {
     setFileName(file.name);
@@ -176,29 +217,62 @@ export function ConverterPage() {
     }
   };
 
-  /* Keyboard shortcut: clear */
+  /* Keyboard shortcuts: Ctrl/⌘+K clear, Ctrl/⌘+Shift+S swap, Ctrl/⌘+Enter copy */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
-      if (mod && (e.key === "k" || e.key === "K")) {
+      if (!mod) return;
+
+      if (e.key === "k" || e.key === "K") {
         e.preventDefault();
         handleClear();
+        return;
+      }
+
+      if (e.shiftKey && (e.key === "s" || e.key === "S")) {
+        e.preventDefault();
+        handleSwap();
+        return;
+      }
+
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleCopy();
+        return;
       }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleClear]);
+  }, [handleClear, handleSwap, handleCopy]);
 
   const year = new Date().getFullYear();
 
+  /* Scroll-aware header */
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* FAQ open state */
+  const [openFaq, setOpenFaq] = useState<string | null>(null);
+
   return (
     <div className="bg-gray-50 dark:bg-gray-950">
-      <div className="min-h-screen flex flex-col">
-      <header className="border-b border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+      <div className="min-h-[100dvh] flex flex-col">
+      <header
+        className={`sticky top-0 z-10 smooth-transition border-b ${
+          scrolled
+            ? "border-gray-200/70 dark:border-gray-800/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+            : "border-transparent bg-white dark:bg-gray-900"
+        }`}
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-          <a href="/" className="flex items-baseline gap-2 text-center sm:text-left">
-            <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Кирил <span className="text-gradient">↔</span> Лотин
+          <a href="/" className="flex flex-shrink-0 items-baseline gap-2 text-center sm:text-left">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
+              Кирил <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Лотин
             </h1>
             <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
               kirillotin.uz
@@ -206,7 +280,7 @@ export function ConverterPage() {
           </a>
           <nav
             aria-label="Сайт навигацияси"
-            className="flex items-center justify-center sm:justify-end gap-1 text-xs sm:text-sm overflow-x-auto -mx-2 px-2 sm:overflow-visible"
+            className="flex min-w-0 items-center justify-center sm:justify-end gap-1 text-xs sm:text-sm overflow-x-auto -mx-2 px-2 sm:overflow-visible"
           >
             <a
               href="#about"
@@ -236,7 +310,7 @@ export function ConverterPage() {
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
         <FileUploader
           onFileSelected={handleFileSelected}
           onFileClear={handleFileClear}
@@ -271,27 +345,23 @@ export function ConverterPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <div className="card p-4">
-            <TextArea
-              label="Кириш"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder={
-                direction === "cyrillic-to-latin"
-                  ? "Кирил матнини киритинг..."
-                  : "Лотин матнини киритинг..."
-              }
-            />
-          </div>
+          <TextArea
+            label="Кириш"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder={
+              direction === "cyrillic-to-latin"
+                ? "Кирил матнини киритинг..."
+                : "Лотин матнини киритинг..."
+            }
+          />
 
-          <div className="card p-4">
-            <TextArea
-              label="Натижа"
-              value={output}
-              readOnly
-              placeholder="Конвертация натижаси..."
-            />
-          </div>
+          <TextArea
+            label="Натижа"
+            value={output}
+            readOnly
+            placeholder="Конвертация натижаси..."
+          />
         </div>
 
         <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
@@ -300,7 +370,7 @@ export function ConverterPage() {
             variant="secondary"
             size="md"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
-            title="Кириш ва натижани алмаштириш"
+            title="Кириш ва натижани алмаштириш (Ctrl+Shift+S)"
           >
             <ArrowLeftRight size={16} />
             Алмаштириш
@@ -310,17 +380,20 @@ export function ConverterPage() {
 
           <Button
             onClick={handleCopy}
-            variant="success"
+            variant="secondary"
             size="md"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-w-[10ch]"
+            title="Натижани нусхалаш (Ctrl+Enter)"
           >
-            {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
-            {copied ? "Нусхаланди" : "Нусхалаш"}
+            <span className="inline-flex items-center gap-2">
+              {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
+              <span>{copied ? "Нусхаланди" : "Нусхалаш"}</span>
+            </span>
           </Button>
 
           <Button
             onClick={handleDownload}
-            variant="success"
+            variant="primary"
             size="md"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
           >
@@ -330,9 +403,10 @@ export function ConverterPage() {
 
           <Button
             onClick={handleClear}
-            variant="danger"
+            variant="secondary"
             size="md"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
+            title="Барча матнни тозалаш (Ctrl+K)"
           >
             <Trash2 size={16} />
             Тозалаш
@@ -359,44 +433,46 @@ export function ConverterPage() {
               Лотиндан Кирилга бир зумда ўгириш учун бепул онлайн восита.
               Сайт <strong className="text-gray-800 dark:text-gray-200">матн</strong>,{" "}
               <strong className="text-gray-800 dark:text-gray-200">.txt</strong> ва{" "}
-              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> файлларни қўллаб-қувватлайди —
-              docx форматланиши тўлиқ сақланиб қолади. Барча амаллар фақат сизнинг
+              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> файлларни қўллаб-қувватлайди.
+              Docx форматланиши тўлиқ сақланиб қолади. Барча амаллар фақат сизнинг
               браузерингизда амалга оширилади, матн серверга юборилмайди.
             </p>
           </div>
 
-          {/* Features */}
-          <div id="features" className="space-y-6 scroll-mt-20">
-            <div className="text-center space-y-2">
-              <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-                Имкониятлар
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                Нима таклиф қилади
-              </h2>
+          {/* Features — three unequally-weighted blocks, not a grid */}
+          <div id="features" className="scroll-mt-20">
+            <div className="max-w-3xl mx-auto stagger space-y-10 sm:space-y-12">
+              {/* Block 1 — the moat */}
+              <article className="space-y-3">
+                <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+                  Махфийлик
+                </span>
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                  Матнингиз серверга юборилмайди
+                </h3>
+                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Барча конвертация жараёни сизнинг браузерингизда амалга оширилади.
+                  Биз ҳам, бошқа ҳеч ким ҳам ёзганингизни кўрмайди. Бир марта очилгандан
+                  кейин сайт интернетсиз ҳам ишлайверади.
+                </p>
+              </article>
+
+              {/* Block 2 — the functional differentiator */}
+              <article className="space-y-2">
+                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                  .docx форматланиши сақланиб қолади
+                </h3>
+                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                  Word ҳужжатларидаги шрифт, жадваллар, рангли матнлар ва бошқа форматлаш
+                  ўз жойида қолади. Фақат ҳарфлар алмашади.
+                </p>
+              </article>
+
+              {/* Block 3 — footnote */}
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                Бепул. Рўйхатдан ўтиш йўқ. Реклама йўқ.
+              </p>
             </div>
-            <ul className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              {[
-                "Кирил → Лотин конвертация",
-                "Лотин → Кирил конвертация",
-                "Реал вақтда автоматик ўгириш",
-                ".txt ва .docx файлларни юклаш",
-                "Docx форматлашни сақлаб қолиш",
-                "Натижани нусхалаш ва юклаб олиш",
-                "Қоронғу режим (Dark Mode)",
-                "Тўлиқ бепул, рўйхатдан ўтиш шарт эмас",
-              ].map((feat) => (
-                <li
-                  key={feat}
-                  className="flex items-center gap-3 p-3.5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40"
-                >
-                  <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary-600 dark:text-primary-400">
-                    <Check size={14} strokeWidth={3} />
-                  </span>
-                  <span className="text-sm text-gray-700 dark:text-gray-300">{feat}</span>
-                </li>
-              ))}
-            </ul>
           </div>
 
           {/* SEO content: alphabet table, rules, history */}
@@ -415,88 +491,69 @@ export function ConverterPage() {
             <div className="max-w-3xl mx-auto space-y-2">
               {[
                 {
-                  q: "Кирил ↔ Лотин конвертация бепулми?",
-                  a: "Ҳа, сайтдан фойдаланиш тўлиқ бепул. Чекловлар, обуна ёки рекламалар йўқ. Истаганча матн ва файл ўгиришингиз мумкин.",
+                  q: "Сайтдан фойдаланиш бепулми?",
+                  a: "Ҳа, сайт тўлиқ бепул. Рўйхатдан ўтиш, email ёки телефон рақами кераксиз. Чекловлар, обуна ва реклама йўқ.",
+                },
+                {
+                  q: "Матн ёки файл серверга юборилади?",
+                  a: "Йўқ, барча конвертация фақат браузерингизда амалга оширилади. Биз ҳам, бошқа ҳеч ким ҳам матнингизни кўрмайди. Сайт бир марта очилгандан кейин интернетсиз ҳам ишлайди.",
                 },
                 {
                   q: "Қандай файлларни юклаш мумкин?",
-                  a: "Ҳозирда .txt ва .docx форматидаги файлларни юклаш мумкин. Файлнинг максимал ҳажми 5 МБ. Яқин келажакда .pdf ва бошқа форматлар қўшилади.",
+                  a: ".txt ва .docx форматидаги файллар, максимум 5 МБ ҳажмда.",
                 },
                 {
-                  q: "Конвертация натижаси сақланадими ёки серверга юборилади?",
-                  a: "Йўқ, барча конвертация фақат сизнинг браузерингизда амалга оширилади. Матн ёки файл серверга юборилмайди, ҳеч ким (биз ҳам) уни кўра олмайди. Махфийлик 100% таъминланган.",
+                  q: ".docx файлининг форматланиши сақланадими?",
+                  a: "Ҳа. Шрифт, ранг, жадваллар, рўйхатлар ва бошқа форматлаш элементлари тўлиқ сақланиб қолади. Фақат ҳарфлар алмашади.",
                 },
                 {
-                  q: "Docx файлининг форматланиши сақланадими?",
-                  a: "Ҳа, .docx файлни ўгирганингизда шрифт, ранг, шакл, жадваллар, рўйхатлар ва бошқа форматлаш элементлари тўлиқ сақланиб қолади. Фақат матн алмашади.",
+                  q: "Конвертация қанчалик аниқ?",
+                  a: "Алгоритм ҳозирги расмий ўзбек лотин алифбоси (2019 йил ўзгартиришлари) асосида ишлайди. Е/Ye, апостроф, Ц, Х/Ҳ каби нозик ҳолатлар ҳисобга олинган. Аниқлик 99%дан юқори.",
                 },
                 {
-                  q: "Кириллатин конвертация қанчалик аниқ?",
-                  a: "Конвертация алгоритми ҳозирги расмий ўзбек лотин алифбоси (2019 йил ўзгартиришлари) асосида ишлайди. Махсус ҳолатлар — Е/Ye, апостроф, Ц, Х/Ҳ — ҳаммаси тўғри ҳисобга олинган. Аниқлик 99%дан юқори.",
-                },
-                {
-                  q: "Қайси йўналишда ўгириш кераклигини сайт ўзи аниқлайдими?",
-                  a: "Ҳа, матн киритганингизда сайт автоматик равишда унинг кирилда ёки лотинда эканлигини аниқлайди ва тегишли йўналишни танлайди. Истасангиз, тугма орқали қўлда алмаштиришингиз мумкин.",
-                },
-                {
-                  q: "Натижани қандай сақлаб олиш мумкин?",
-                  a: "Конвертация натижасини иккита усулда олиш мумкин: 'Нусхалаш' тугмаси орқали clipboard'га нусхалаш, ёки 'Юклаб олиш' тугмаси орқали .txt ёки .docx файл сифатида компьютерингизга юклаб олиш.",
-                },
-                {
-                  q: "Рўйхатдан ўтиш керакми?",
-                  a: "Йўқ, ҳеч қандай рўйхатдан ўтиш, email ёки телефон рақами кераксиз. Сайтга кириш биланоқ ишлатиш мумкин.",
+                  q: "Йўналишни сайт ўзи аниқлайдими?",
+                  a: "Ҳа. Матн киритганингизда сайт унинг кирилда ёки лотинда эканлигини аниқлайди ва тегишли йўналишни танлайди. Қўлда алмаштириш ҳам мумкин.",
                 },
                 {
                   q: "Мобил телефонда ишлайдими?",
-                  a: "Ҳа, сайт тўлиқ мобил қурилмалар учун мослаштирилган. Android, iPhone ва планшетларда браузер орқали бемалол ишлатиш мумкин. Алоҳида илова ўрнатиш шарт эмас.",
+                  a: "Ҳа, сайт Android, iPhone ва планшетлар учун тўлиқ мослаштирилган. Алоҳида илова ўрнатиш шарт эмас.",
                 },
                 {
-                  q: "Интернет узилса ҳам ишлайдими?",
-                  a: "Сайт биринчи марта очилгандан кейин барча конвертация жараёни оффлайн ҳолда ҳам давом этади, чунки барча амаллар браузерингизда бажарилади. Фақат янги матн ёки файл юклаш учун интернет керак эмас.",
+                  q: "Бирор сўз нотўғри ўгирилса нима қилиш керак?",
+                  a: "Telegram орқали разработчи билан боғланинг (@Shohruz_Isroilov). Муаммо тезда тузатилади.",
                 },
-                {
-                  q: "Қайси кирил алифбосини қўллаб-қувватлайди?",
-                  a: "Сайт ҳозирги ўзбек кирил алифбосини (Ў, Қ, Ғ, Ҳ ҳарфлари билан) қўллаб-қувватлайди. Шунингдек, рус тилида учрайдиган Ц, Ы, Э ҳарфлари ҳам тўғри ўгирилади.",
-                },
-                {
-                  q: "Апостроф (') нима учун ишлатилади?",
-                  a: "Ўзбек лотин ёзувида апостроф иккита вазифани бажаради: 1) O' ва G' ҳарфларининг бир қисми сифатида (Ўзбек → O'zbek, Ғоя → G'oya); 2) Маъно фарқлайдиган бўғин чегарасида (Маъно → Ma'no).",
-                },
-                {
-                  q: "Х ва Ҳ ҳарфларининг фарқи нима?",
-                  a: "Кирил Х ҳарфи лотинда X билан (Хайр → Xayr), Ҳ эса H билан (Ҳаво → Havo) ёзилади. Бу икки ҳарф жуда тез-тез адаштирилади — сайтимиз буни автоматик равишда тўғри ўгиради.",
-                },
-                {
-                  q: "Кирилда битта Ш кирилда, лотинда Sh — катта матнда муаммо бўлмайдими?",
-                  a: "Йўқ, алгоритм катта-кичик ҳарфларни ҳам тўғри ўгиради. Масалан, ШАҲАР → SHAHAR (бош ҳарф ҳолатида), Шаҳар → Shahar (фақат биринчи ҳарф бош ҳолатида).",
-                },
-                {
-                  q: "Сайтда хато учрасам нима қилишим керак?",
-                  a: "Агар бирор сўз нотўғри ўгирилса ёки бошқа муаммо учраса, разработчи билан Telegram орқали (@Shohruz_Isroilov) боғланиб, муаммони билдиришингиз мумкин. Тезда тузатилади.",
-                },
-                {
-                  q: "Сайт коди очиқми?",
-                  a: "Сайт ўзбек тилидаги интернет жамоасига фойдали бўлсин деб ишлаб чиқилган бепул лойиҳа. Хусусиятларни такомиллаштириш бўйича таклифларингизни қабул қиламиз.",
-                },
-              ].map((item) => (
-                <details
-                  key={item.q}
-                  className="group rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40 overflow-hidden"
-                >
-                  <summary className="flex items-center justify-between gap-3 px-4 py-3.5 cursor-pointer list-none select-none hover:bg-gray-100/60 dark:hover:bg-gray-800/60 transition-colors">
-                    <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200">
-                      {item.q}
-                    </h3>
-                    <ChevronDown
-                      size={18}
-                      className="flex-shrink-0 text-gray-400 transition-transform group-open:rotate-180"
-                    />
-                  </summary>
-                  <div className="px-4 pb-4 pt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-                    {item.a}
+              ].map((item) => {
+                const isOpen = openFaq === item.q;
+                return (
+                  <div
+                    key={item.q}
+                    data-open={isOpen}
+                    className="faq-item border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setOpenFaq(isOpen ? null : item.q)}
+                      aria-expanded={isOpen}
+                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left select-none hover:bg-gray-100/60 dark:hover:bg-gray-800/60 smooth-transition"
+                    >
+                      <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200">
+                        {item.q}
+                      </h3>
+                      <ChevronDown
+                        size={18}
+                        className="faq-chevron flex-shrink-0 text-gray-400"
+                      />
+                    </button>
+                    <div className="faq-body">
+                      <div>
+                        <div className="px-4 pb-4 pt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                          {item.a}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </details>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>
