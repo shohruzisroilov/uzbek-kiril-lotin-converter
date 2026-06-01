@@ -272,7 +272,7 @@ export function ConverterPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
           <a href="/" className="flex flex-shrink-0 items-baseline gap-2 text-center sm:text-left">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Кирил <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Лотин
+              Kiril <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Lotin
             </h1>
             <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
               kirillotin.uz
@@ -426,16 +426,16 @@ export function ConverterPage() {
               Сайт ҳақида
             </span>
             <h2 id="about-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-              Кирил ↔ Лотин Конвертор
+              Kiril ↔ Lotin Konvertor
             </h2>
             <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-              Ўзбек тилидаги матнларни Кирил алифбосидан Лотин алифбосига ва тескариси,
-              Лотиндан Кирилга бир зумда ўгириш учун бепул онлайн восита.
-              Сайт <strong className="text-gray-800 dark:text-gray-200">матн</strong>,{" "}
-              <strong className="text-gray-800 dark:text-gray-200">.txt</strong> ва{" "}
-              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> файлларни қўллаб-қувватлайди.
-              Docx форматланиши тўлиқ сақланиб қолади. Барча амаллар фақат сизнинг
-              браузерингизда амалга оширилади, матн серверга юборилмайди.
+              O'zbek tilidagi matnlarni Kiril alifbosidan Lotin alifbosiga va teskari,
+              Lotindan Kirilga bir zumda o'girish uchun bepul onlayn vosita.
+              Sayt <strong className="text-gray-800 dark:text-gray-200">matn</strong>,{" "}
+              <strong className="text-gray-800 dark:text-gray-200">.txt</strong> va{" "}
+              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> fayllarni qo'llab-quvvatlaydi.
+              Docx formatlash to'liq saqlanib qoladi. Barcha amallar faqat sizning
+              brauzeringizda amalga oshiriladi, matn serverga yuborilmaydi.
             </p>
           </div>
 
@@ -445,32 +445,32 @@ export function ConverterPage() {
               {/* Block 1 — the moat */}
               <article className="space-y-3">
                 <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-                  Махфийлик
+                  Maxfiylik
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  Матнингиз серверга юборилмайди
+                  Matnингиз serverga yuborilmaydi
                 </h3>
                 <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Барча конвертация жараёни сизнинг браузерингизда амалга оширилади.
-                  Биз ҳам, бошқа ҳеч ким ҳам ёзганингизни кўрмайди. Бир марта очилгандан
-                  кейин сайт интернетсиз ҳам ишлайверади.
+                  Barcha konvertatsiya jarayoni sizning brauzeringizda amalga oshiriladi.
+                  Biz ham, boshqa hech kim ham yozganingizni ko'rmaydi. Bir marta ochildandan
+                  keyin sayt internetsiz ham ishlayveradi.
                 </p>
               </article>
 
               {/* Block 2 — the functional differentiator */}
               <article className="space-y-2">
                 <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
-                  .docx форматланиши сақланиб қолади
+                  .docx formatlash saqlanib qoladi
                 </h3>
                 <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                  Word ҳужжатларидаги шрифт, жадваллар, рангли матнлар ва бошқа форматлаш
-                  ўз жойида қолади. Фақат ҳарфлар алмашади.
+                  Word hujjatlaridagi shrift, jadvallar, rangli matnlar va boshqa formatlash
+                  o'z joyida qoladi. Faqat harflar almashadi.
                 </p>
               </article>
 
               {/* Block 3 — footnote */}
               <p className="text-sm text-gray-500 dark:text-gray-500">
-                Бепул. Рўйхатдан ўтиш йўқ. Реклама йўқ.
+                Bepul. Ro'yxatdan o'tish yo'q. Reklama yo'q.
               </p>
             </div>
           </div>
@@ -482,45 +482,45 @@ export function ConverterPage() {
           <div id="faq" className="space-y-6 scroll-mt-20">
             <div className="text-center space-y-2">
               <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-                Саволлар
+                Savollar
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                Тез-тез бериладиган саволлар
+                Tez-tez beriladigan savollar
               </h2>
             </div>
             <div className="max-w-3xl mx-auto space-y-2">
               {[
                 {
-                  q: "Сайтдан фойдаланиш бепулми?",
-                  a: "Ҳа, сайт тўлиқ бепул. Рўйхатдан ўтиш, email ёки телефон рақами кераксиз. Чекловлар, обуна ва реклама йўқ.",
+                  q: "Saytdan foydalanish bepulmi?",
+                  a: "Ha, sayt to'liq bepul. Ro'yxatdan o'tish, email yoki telefon raqami kerak emas. Cheklovlar, obuna va reklama yo'q.",
                 },
                 {
-                  q: "Матн ёки файл серверга юборилади?",
-                  a: "Йўқ, барча конвертация фақат браузерингизда амалга оширилади. Биз ҳам, бошқа ҳеч ким ҳам матнингизни кўрмайди. Сайт бир марта очилгандан кейин интернетсиз ҳам ишлайди.",
+                  q: "Matn yoki fayl serverga yuboriladi?",
+                  a: "Yo'q, barcha konvertatsiya faqat brauzeringizda amalga oshiriladi. Biz ham, boshqa hech kim ham matnингizni ko'rmaydi. Sayt bir marta ochildandan keyin internetsiz ham ishlaydi.",
                 },
                 {
-                  q: "Қандай файлларни юклаш мумкин?",
-                  a: ".txt ва .docx форматидаги файллар, максимум 5 МБ ҳажмда.",
+                  q: "Qanday fayllarni yuklash mumkin?",
+                  a: ".txt va .docx formatidagi fayllar, maksimum 5 MB hajmda.",
                 },
                 {
-                  q: ".docx файлининг форматланиши сақланадими?",
-                  a: "Ҳа. Шрифт, ранг, жадваллар, рўйхатлар ва бошқа форматлаш элементлари тўлиқ сақланиб қолади. Фақат ҳарфлар алмашади.",
+                  q: ".docx faylining formatlash saqlanadimi?",
+                  a: "Ha. Shrift, rang, jadvallar, ro'yxatlar va boshqa formatlash elementlari to'liq saqlanib qoladi. Faqat harflar almashadi.",
                 },
                 {
-                  q: "Конвертация қанчалик аниқ?",
-                  a: "Алгоритм ҳозирги расмий ўзбек лотин алифбоси (2019 йил ўзгартиришлари) асосида ишлайди. Е/Ye, апостроф, Ц, Х/Ҳ каби нозик ҳолатлар ҳисобга олинган. Аниқлик 99%дан юқори.",
+                  q: "Konvertatsiya qanchalik aniq?",
+                  a: "Algoritm hozirgi rasmiy o'zbek lotin alifbosi (2019 yil o'zgartirishlari) asosida ishlaydi. Ye/E, apostrof, Ts, X/H kabi nozik holatlar hisobga olingan. Aniqlik 99%dan yuqori.",
                 },
                 {
-                  q: "Йўналишни сайт ўзи аниқлайдими?",
-                  a: "Ҳа. Матн киритганингизда сайт унинг кирилда ёки лотинда эканлигини аниқлайди ва тегишли йўналишни танлайди. Қўлда алмаштириш ҳам мумкин.",
+                  q: "Yo'nalishni sayt o'zi aniqlaydimi?",
+                  a: "Ha. Matn kiritganingizda sayt uning kirilda yoki lotinda ekanligini aniqlab, tegishli yo'nalishni tanlaydi. Qo'lda almashtirish ham mumkin.",
                 },
                 {
-                  q: "Мобил телефонда ишлайдими?",
-                  a: "Ҳа, сайт Android, iPhone ва планшетлар учун тўлиқ мослаштирилган. Алоҳида илова ўрнатиш шарт эмас.",
+                  q: "Mobil telefonida ishlaydi?",
+                  a: "Ha, sayt Android, iPhone va planshetlar uchun to'liq moslashtirilgan. Alohida ilova o'rnatish shart emas.",
                 },
                 {
-                  q: "Бирор сўз нотўғри ўгирилса нима қилиш керак?",
-                  a: "Telegram орқали разработчи билан боғланинг (@Shohruz_Isroilov). Муаммо тезда тузатилади.",
+                  q: "Biror so'z noto'g'ri o'girilsa nima qilish kerak?",
+                  a: "Telegram orqali razrabotchi bilan bog'laning (@Shohruz_Isroilov). Muammo tezda tuzatiladi.",
                 },
               ].map((item) => {
                 const isOpen = openFaq === item.q;
