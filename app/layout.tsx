@@ -4,6 +4,7 @@ import Script from "next/script";
 import { ToastProvider } from "@/components/ToastContext";
 import { ToastContainer } from "@/components/ToastContainer";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { LanguageProvider } from "@/components/LanguageContext";
 import "../globals.css";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "";
@@ -26,9 +27,9 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-const TITLE = "Kiril Lotin Konvertor — O'zbek matnini o'girish onlayn | Кирил Лотин";
+const TITLE = "Kiril Lotin Konvertor — Kirildan Lotinga yoki Lotindan Kirilga o'tkazish onlayn | Кирил Лотин";
 const DESCRIPTION =
-  "Kiril lotin konvertor — o'zbek matnini kirildan lotinga yoki lotindan kirilga bepul, tez va aniq o'girish. Matn yoki .txt, .docx faylini yuklang — natijani darhol oling. Кирил Лотин конвертор, transliteratsiya, ўгириш.";
+  "Kiril lotin konvertor — kirildan lotinga yoki lotindan kirilga bepul, tez va aniq o'tkazish. Matn yoki .txt, .docx faylini yuklang — natijani darhol oling. Кирил Лотин конвертор, transliteratsiya, ўгириш.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -361,10 +362,12 @@ export default function RootLayout({
         </a>
         <div className="paper-grain" aria-hidden="true" />
         <ThemeProvider>
-          <ToastProvider>
-            {children}
-            <ToastContainer />
-          </ToastProvider>
+          <LanguageProvider>
+            <ToastProvider>
+              {children}
+              <ToastContainer />
+            </ToastProvider>
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

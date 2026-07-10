@@ -15,6 +15,7 @@ import { FileUploader } from "@/components/FileUploader";
 import { SeoContent } from "@/components/SeoContent";
 import { useToast } from "@/components/ToastContext";
 import { useTheme } from "@/components/ThemeProvider";
+import { useLanguage } from "@/components/LanguageContext";
 import {
   cyrillicToLatin,
   latinToCyrillic,
@@ -37,11 +38,19 @@ function detectDirection(text: string): Direction {
 export function ConverterPage() {
   const { addToast } = useToast();
   const { theme, toggleTheme } = useTheme();
+  const { locale, setLocale, t } = useLanguage();
   const [mounted, setMounted] = useState(false);
+  const [langOpen, setLangOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (mounted) {
+      document.title = t("metaTitle");
+    }
+  }, [locale, mounted, t]);
 
   const [input, setInput]           = useState("");
   const [output, setOutput]         = useState("");
@@ -98,27 +107,27 @@ export function ConverterPage() {
 
   const handleCopy = useCallback(async () => {
     if (!output.trim()) {
-      addToast("Нусхалаш учун матн йўқ", "info");
+      addToast(t("toastNoTextToCopy"), "info");
       return;
     }
     const ok = await copyToClipboard(output);
     if (ok) {
       setCopied(true);
-      addToast("Нусха олинди", "success", 1500);
+      addToast(t("toastCopied"), "success", 1500);
       setTimeout(() => setCopied(false), 2000);
     } else {
-      addToast("Кўчиришда хато", "error");
+      addToast(t("toastCopyError"), "error");
     }
-  }, [output, addToast]);
+  }, [output, addToast, t]);
 
   const handleDownload = useCallback(() => {
     if (!output.trim()) {
-      addToast("Юклаб олиш учун матн йўқ", "info");
+      addToast(t("toastNoTextToDownload"), "info");
       return;
     }
     const base = fileName ? fileName.replace(/\.[^/.]+$/, "") : "converted";
     downloadAsTextFile(output, `${base}_converted.txt`);
-  }, [output, fileName, addToast]);
+  }, [output, fileName, addToast, t]);
 
   const handleClear = useCallback(() => {
     const hadContent =
@@ -145,10 +154,10 @@ export function ConverterPage() {
     saveToLocalStorage("converter-output", "");
 
     if (hadContent) {
-      addToast("Тозаланди", "info", {
+      addToast(t("toastCleared"), "info", {
         duration: 6000,
         action: {
-          label: "Бекор қилиш",
+          label: t("toastUndo"),
           onClick: () => {
             setInput(snapshot.input);
             setOutput(snapshot.output);
@@ -172,6 +181,7 @@ export function ConverterPage() {
     sourceText,
     fileConverted,
     addToast,
+    t,
   ]);
 
   const handleFileSelected = (text: string, file: File) => {
@@ -180,7 +190,7 @@ export function ConverterPage() {
     setSourceText(text);
     setFileConverted(null);
     setDirection(detectDirection(text));
-    addToast(`"${file.name}" юкланди`, "success", 1500);
+    addToast(t("toastFileLoaded").replace("{name}", file.name), "success", 1500);
   };
 
   useEffect(() => {
@@ -218,7 +228,7 @@ export function ConverterPage() {
         );
       } catch (err) {
         addToast(
-          err instanceof Error ? err.message : "Файлни юклашда хато",
+          err instanceof Error ? err.message : t("toastFileLoadError"),
           "error",
         );
       } finally {
@@ -269,20 +279,34 @@ export function ConverterPage() {
     <div className="bg-gray-50 dark:bg-gray-950">
       <div className="min-h-[100dvh] flex flex-col">
       <header
-        className={`sticky top-0 z-10 smooth-transition border-b ${
+        className={`sticky top-0 z-30 smooth-transition border-b ${
           scrolled
-            ? "border-gray-200/70 dark:border-gray-800/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md"
+            ? "border-gray-200/70 dark:border-gray-800/70 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md shadow-sm"
             : "border-transparent bg-white dark:bg-gray-900"
         }`}
       >
-        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
-          <a href="/" className="flex flex-shrink-0 items-baseline gap-2 text-center sm:text-left">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-              Kiril <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Lotin
-            </h1>
-            <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
-              kirillotin.uz
-            </span>
+        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-1 sm:py-1.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+          <a
+            href="/"
+            onClick={(e) => {
+              e.preventDefault();
+              handleClear();
+            }}
+            className="flex items-center gap-2.5 select-none group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 rounded-lg py-1 px-2 -mx-2"
+          >
+            <img
+              src="/logo.png"
+              alt="Logo"
+              className="w-12 h-12 object-contain"
+            />
+            <div className="flex flex-col items-start leading-none">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+                Kiril <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Lotin
+              </h1>
+              <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
+                kirillotin.uz
+              </span>
+            </div>
           </a>
           <nav
             aria-label="Сайт навигацияси"
@@ -292,25 +316,25 @@ export function ConverterPage() {
               href="#about"
               className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              Сайт ҳақида
+              {t("navAbout")}
             </a>
             <a
               href="#features"
               className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              Имкониятлар
+              {t("navFeatures")}
             </a>
             <a
               href="#faq"
               className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              Саволлар
+              {t("navFaq")}
             </a>
             <a
               href="/blog"
               className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
-              Блог
+              {t("navBlog")}
             </a>
 
             <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0" />
@@ -319,12 +343,12 @@ export function ConverterPage() {
               type="button"
               onClick={() => setContactOpen(true)}
               className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title="IT хизматлари учун боғланинг"
+              title={t("contactTooltip")}
             >
               <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
                 <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
               </svg>
-              Боғланиш
+              {t("navContact")}
             </button>
 
             <button
@@ -332,19 +356,117 @@ export function ConverterPage() {
               onClick={() => setDonateOpen(true)}
               className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors"
             >
-              💛 Донат
+              {t("navDonate")}
             </button>
 
             {mounted && (
-              <button
-                type="button"
-                onClick={toggleTheme}
-                aria-label="Темани ўзгартириш"
-                title={theme === "light" ? "Тунги режимга ўтиш" : "Кун режимига ўтиш"}
-                className="whitespace-nowrap inline-flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors ml-1"
-              >
-                {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
-              </button>
+              <div className="flex items-center gap-1.5 ml-1">
+                {/* Language Selector Dropdown */}
+                <div className="relative inline-block text-left">
+                  <button
+                    type="button"
+                    onClick={() => setLangOpen(!langOpen)}
+                    className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-[11px] sm:text-xs font-bold transition-colors focus:outline-none"
+                  >
+                    <span>
+                      {locale === "uz-cyr"
+                        ? "🇺🇿 Ўзб"
+                        : locale === "uz-lat"
+                        ? "🇺🇿 O'zb"
+                        : locale === "ru"
+                        ? "🇷🇺 RU"
+                        : "🇬🇧 EN"}
+                    </span>
+                    <ChevronDown
+                      size={12}
+                      className={`opacity-60 transition-transform duration-200 ${
+                        langOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {langOpen && (
+                    <>
+                      {/* Backdrop for closing */}
+                      <div
+                        className="fixed inset-0 z-30"
+                        onClick={() => setLangOpen(false)}
+                      />
+                      
+                      {/* Dropdown options */}
+                      <div className="absolute right-0 mt-1.5 w-36 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 shadow-lg py-1 z-40 focus:outline-none animate-in fade-in-50 slide-in-from-top-1 duration-100">
+                        <button
+                          onClick={() => {
+                            setLocale("uz-cyr");
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                            locale === "uz-cyr"
+                              ? "bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-bold"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          <span className="text-xs">🇺🇿</span>
+                          <span>Ўзб (Кирил)</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setLocale("uz-lat");
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                            locale === "uz-lat"
+                              ? "bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-bold"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          <span className="text-xs">🇺🇿</span>
+                          <span>O'zb (Lotin)</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setLocale("ru");
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                            locale === "ru"
+                              ? "bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-bold"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          <span className="text-xs">🇷🇺</span>
+                          <span>Русский</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            setLocale("en");
+                            setLangOpen(false);
+                          }}
+                          className={`w-full text-left px-3 py-1.5 text-xs font-semibold transition-colors flex items-center gap-1.5 ${
+                            locale === "en"
+                              ? "bg-primary-50 dark:bg-primary-950/30 text-primary-600 dark:text-primary-400 font-bold"
+                              : "text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+                          }`}
+                        >
+                          <span className="text-xs">🇬🇧</span>
+                          <span>English</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Theme Switcher Toggle */}
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label={theme === "light" ? t("themeToggleDark") : t("themeToggleLight")}
+                  title={theme === "light" ? t("themeToggleDark") : t("themeToggleLight")}
+                  className="whitespace-nowrap inline-flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+                >
+                  {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+                </button>
+              </div>
             )}
           </nav>
         </div>
@@ -363,7 +485,19 @@ export function ConverterPage() {
           directionLabel={
             fileConverted
               ? fileConverted.direction === "cyrillic-to-latin"
-                ? "Kiril → Lotin"
+                ? locale === "ru"
+                  ? "Кириллица → Латиница"
+                  : locale === "en"
+                  ? "Cyrillic → Latin"
+                  : locale === "uz-cyr"
+                  ? "Кирил → Лотин"
+                  : "Kiril → Lotin"
+                : locale === "ru"
+                ? "Латиница → Кириллица"
+                : locale === "en"
+                ? "Latin → Cyrillic"
+                : locale === "uz-cyr"
+                ? "Лотин → Кирил"
                 : "Lotin → Kiril"
               : undefined
           }
@@ -377,28 +511,28 @@ export function ConverterPage() {
             {/* Panel header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
               <span className="text-sm font-bold tracking-wide uppercase text-gray-700 dark:text-gray-300">
-                Матн киритинг
+                {t("panelInputHeader")}
               </span>
               <button
                 onClick={handleClear}
-                title="Тозалаш (Ctrl+K)"
+                title={`${t("panelInputClear")} (Ctrl+K)`}
                 className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 <Trash2 size={18} />
-                <span className="hidden sm:inline">Тозалаш</span>
+                <span className="hidden sm:inline">{t("panelInputClear")}</span>
               </button>
             </div>
             {/* Textarea */}
             <textarea
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
-              placeholder="Кирил ёки Лотин матнини киритинг..."
+              placeholder={t("panelInputPlaceholder")}
               className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
               <span className="text-xs font-bold text-gray-500 dark:text-gray-400 tabular-nums">
-                {input.length > 0 ? `${input.length.toLocaleString()} белги` : ""}
+                {input.length > 0 ? `${input.length.toLocaleString()} ${t("panelCharCount")}` : ""}
               </span>
             </div>
           </div>
@@ -408,13 +542,13 @@ export function ConverterPage() {
             {/* Panel header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
               <span className="text-sm font-bold tracking-wide uppercase text-gray-700 dark:text-gray-300">
-                Натижа
+                {t("panelOutputHeader")}
               </span>
               <div className="flex items-center gap-1.5">
                 {/* Copy */}
                 <button
                   onClick={handleCopy}
-                  title="Нусхалаш (Ctrl+Enter)"
+                  title={`${t("panelOutputCopy")} (Ctrl+Enter)`}
                   className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
                     copied
                       ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
@@ -422,16 +556,16 @@ export function ConverterPage() {
                   }`}
                 >
                   {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
-                  <span className="hidden sm:inline">{copied ? "Нусхаланди" : "Нусхалаш"}</span>
+                  <span className="hidden sm:inline">{copied ? t("panelOutputCopied") : t("panelOutputCopy")}</span>
                 </button>
                 {/* Download */}
                 <button
                   onClick={handleDownload}
-                  title="Юклаб олиш"
+                  title={t("panelOutputDownload")}
                   className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                 >
                   <Download size={16} />
-                  <span className="hidden sm:inline">Юклаб олиш</span>
+                  <span className="hidden sm:inline">{t("panelOutputDownload")}</span>
                 </button>
               </div>
             </div>
@@ -439,13 +573,13 @@ export function ConverterPage() {
             <textarea
               value={output}
               readOnly
-              placeholder="Конвертация натижаси..."
+              placeholder={t("panelOutputPlaceholder")}
               className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
               <span className="text-xs font-bold text-gray-500 dark:text-gray-400 tabular-nums">
-                {output.length > 0 ? `${output.length.toLocaleString()} белги` : ""}
+                {output.length > 0 ? `${output.length.toLocaleString()} ${t("panelCharCount")}` : ""}
               </span>
             </div>
           </div>
@@ -462,54 +596,48 @@ export function ConverterPage() {
           {/* About */}
           <div id="about" className="max-w-3xl mx-auto text-center space-y-4 scroll-mt-20">
             <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-              Сайт ҳақида
+              {t("aboutEyebrow")}
             </span>
             <h2 id="about-heading" className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">
-              Kiril ↔ Lotin Konvertor
+              {t("aboutTitle")}
             </h2>
             <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-loose">
-              O'zbek tilidagi matnlarni Kiril alifbosidan Lotin alifbosiga va teskari,
-              Lotindan Kirilga bir zumda o'girish uchun bepul onlayn vosita.
-              Sayt <strong className="text-gray-900 dark:text-gray-50">matn</strong>,{" "}
-              <strong className="text-gray-900 dark:text-gray-50">.txt</strong> va{" "}
-              <strong className="text-gray-900 dark:text-gray-50">.docx</strong> fayllarni qo'llab-quvvatlaydi.
-              Docx formatlash to'liq saqlanib qoladi. Barcha amallar faqat sizning
-              brauzeringizda amalga oshiriladi, matn serverga yuborilmaydi.
+              {t("aboutDesc1")}
             </p>
           </div>
 
           {/* Features — three unequally-weighted blocks, not a grid */}
           <div id="features" className="scroll-mt-20">
             <div className="max-w-3xl mx-auto stagger space-y-10 sm:space-y-12">
-              {/* Block 1 — the moat */}
+              {/* Block 1 — the privacy */}
               <article className="space-y-3">
                 <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-                  Maxfiylik
+                  {t("featuresPrivacyEyebrow")}
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
-                  Matnингиз serverga yuborilmaydi
+                  {t("featuresPrivacyTitle")}
                 </h3>
                 <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Barcha konvertatsiya jarayoni sizning brauzeringizda amalga oshiriladi.
-                  Biz ham, boshqa hech kim ham yozganingizni ko'rmaydi. Bir marta ochildandan
-                  keyin sayt internetsiz ham ishlayveradi.
+                  {t("featuresPrivacyDesc")}
                 </p>
               </article>
 
-              {/* Block 2 — the functional differentiator */}
+              {/* Block 2 — Word formats */}
               <article className="space-y-2">
+                <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+                  {t("featuresWordEyebrow")}
+                </span>
                 <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
-                  .docx formatlash saqlanib qoladi
+                  {t("featuresWordTitle")}
                 </h3>
                 <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
-                  Word hujjatlaridagi shrift, jadvallar, rangli matnlar va boshqa formatlash
-                  o'z joyida qoladi. Faqat harflar almashadi.
+                  {t("featuresWordDesc")}
                 </p>
               </article>
 
               {/* Block 3 — footnote */}
               <p className="text-base font-bold text-gray-600 dark:text-gray-400">
-                Bepul. Ro'yxatdan o'tish yo'q. Reklama yo'q.
+                {t("featuresFootnote")}
               </p>
             </div>
           </div>
@@ -521,46 +649,22 @@ export function ConverterPage() {
           <div id="faq" className="space-y-6 scroll-mt-20">
             <div className="text-center space-y-2">
               <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
-                Savollar
+                {t("faqEyebrow")}
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                Tez-tez beriladigan savollar
+                {t("faqTitle")}
               </h2>
             </div>
             <div className="max-w-3xl mx-auto space-y-2.5">
               {[
-                {
-                  q: "Saytdan foydalanish bepulmi?",
-                  a: "Ha, sayt to'liq bepul. Ro'yxatdan o'tish, email yoki telefon raqami kerak emas. Cheklovlar, obuna va reklama yo'q.",
-                },
-                {
-                  q: "Matn yoki fayl serverga yuboriladi?",
-                  a: "Yo'q, barcha konvertatsiya faqat brauzeringizda amalga oshiriladi. Biz ham, boshqa hech kim ham matnингizni ko'rmaydi. Sayt bir marta ochildandan keyin internetsiz ham ishlaydi.",
-                },
-                {
-                  q: "Qanday fayllarni yuklash mumkin?",
-                  a: ".txt va .docx formatidagi fayllar, maksimum 5 MB hajmda.",
-                },
-                {
-                  q: ".docx faylining formatlash saqlanadimi?",
-                  a: "Ha. Shrift, rang, jadvallar, ro'yxatlar va boshqa formatlash elementlari to'liq saqlanib qoladi. Faqat harflar almashadi.",
-                },
-                {
-                  q: "Konvertatsiya qanchalik aniq?",
-                  a: "Algoritm hozirgi rasmiy o'zbek lotin alifbosi (2019 yil o'zgartirishlari) asosida ishlaydi. Ye/E, apostrof, Ts, X/H kabi nozik holatlar hisobga olingan. Aniqlik 99%dan yuqori.",
-                },
-                {
-                  q: "Yo'nalishni sayt o'zi aniqlaydimi?",
-                  a: "Ha. Matn kiritganingizda sayt uning kirilda yoki lotinda ekanligini aniqlab, tegishli yo'nalishni tanlaydi. Qo'lda almashtirish ham mumkin.",
-                },
-                {
-                  q: "Mobil telefonida ishlaydi?",
-                  a: "Ha, sayt Android, iPhone va planshetlar uchun to'liq moslashtirilgan. Alohida ilova o'rnatish shart emas.",
-                },
-                {
-                  q: "Biror so'z noto'g'ri o'girilsa nima qilish kerak?",
-                  a: "Telegram orqali razrabotchi bilan bog'laning (@Shohruz_Isroilov). Muammo tezda tuzatiladi.",
-                },
+                { q: t("faqQ1"), a: t("faqA1") },
+                { q: t("faqQ2"), a: t("faqA2") },
+                { q: t("faqQ3"), a: t("faqA3") },
+                { q: t("faqQ4"), a: t("faqA4") },
+                { q: t("faqQ5"), a: t("faqA5") },
+                { q: t("faqQ6"), a: t("faqA6") },
+                { q: t("faqQ7"), a: t("faqA7") },
+                { q: t("faqQ8"), a: t("faqA8") },
               ].map((item) => {
                 const isOpen = openFaq === item.q;
                 return (
@@ -611,7 +715,7 @@ export function ConverterPage() {
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
-              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Боғланиш</h2>
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">{t("modalContactTitle")}</h2>
               <button
                 onClick={() => setContactOpen(false)}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
@@ -635,10 +739,10 @@ export function ConverterPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                    IT хизматлари
+                    {t("modalContactItServices")}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
-                    Веб-сайт, мобил илова, дастур ёки бошқа IT лойиҳа буюртмаси учун
+                    {t("modalContactItDesc")}
                   </p>
                   <p className="text-xs font-medium text-primary-600 dark:text-primary-400 mt-1.5">
                     @Shohruz_Isroilov →
@@ -658,10 +762,10 @@ export function ConverterPage() {
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
-                    Муаммо ёки таклиф
+                    {t("modalContactSuggest")}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
-                    Сайтда хато топдингизми ёки яхшилаш учун таклифингиз борми?
+                    {t("modalContactSuggestDesc")}
                   </p>
                   <p className="text-xs font-medium text-primary-600 dark:text-primary-400 mt-1.5">
                     @Shohruz_Isroilov →
@@ -692,9 +796,9 @@ export function ConverterPage() {
             </button>
             <div className="text-4xl">💛</div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Лойиҳани қўллаб-қувватланг</h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">{t("modalDonateTitle")}</h2>
               <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
-                Сайт бепул ва рекламасиз ишлайди. Агар фойдали бўлса — донат қилинг.
+                {t("modalDonateDesc")}
               </p>
             </div>
             <button
@@ -703,12 +807,12 @@ export function ConverterPage() {
                 const ok = await copyToClipboard("9860190110799466");
                 if (ok) {
                   setCardCopied(true);
-                  addToast("Карта рақами нусхаланди", "success", 1500);
+                  addToast(t("modalDonateCopiedToast"), "success", 1500);
                   setTimeout(() => setCardCopied(false), 2000);
                 }
               }}
               className="group w-full inline-flex items-center justify-between gap-3 px-5 py-3 rounded-xl border-2 border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/20 hover:border-primary-400 dark:hover:border-primary-600 transition-colors"
-              title="Нусхалаш"
+              title={t("modalDonateCopy")}
             >
               <span className="font-mono font-bold text-lg text-gray-800 dark:text-gray-200 tracking-widest">
                 9860 1901 1079 9466
@@ -718,12 +822,13 @@ export function ConverterPage() {
                 : <Copy size={16} className="opacity-40 group-hover:opacity-100 transition-opacity text-primary-600 dark:text-primary-400 flex-shrink-0" />
               }
             </button>
-            <p className="text-xs text-gray-400 dark:text-gray-500">Shohruz Isroilov · Humo karta</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500">{t("modalDonateHolder")}</p>
           </div>
         </div>
       )}
 
-      <footer className="border-t border-gray-100 dark:border-gray-800"><div className="max-w-full px-4 sm:px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
+      <footer className="border-t border-gray-100 dark:border-gray-800">
+        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
           <span className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span>
               © {year}{" "}
@@ -738,13 +843,13 @@ export function ConverterPage() {
               href="/blog"
               className="font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
             >
-              Блог
+              {t("navBlog")}
             </a>
             <a
               href="#faq"
               className="font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
             >
-              FAQ
+              {t("faqEyebrow")}
             </a>
           </span>
           <span>

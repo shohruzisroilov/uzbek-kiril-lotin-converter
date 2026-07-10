@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { Upload, Loader2, FileText, X, Download, CheckCircle2 } from "lucide-react";
+import { useLanguage } from "@/components/LanguageContext";
 import {
   isValidFileType,
   isValidFileSize,
@@ -30,6 +31,7 @@ export function FileUploader({
   ready = false,
   directionLabel,
 }: FileUploaderProps) {
+  const { t } = useLanguage();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -43,12 +45,12 @@ export function FileUploader({
 
     try {
       if (!isValidFileType(file)) {
-        setError(".txt ёки .docx файлини юкланг");
+        setError(t("uploaderErrFormat"));
         return;
       }
 
       if (!isValidFileSize(file)) {
-        setError("Файл ҳажми 5MB дан кам бўлиши керак");
+        setError(t("uploaderErrSize"));
         return;
       }
 
@@ -61,18 +63,18 @@ export function FileUploader({
       ) {
         text = await extractTextFromDocx(file);
       } else {
-        setError("Номаълум файл тури");
+        setError(t("uploaderErrUnknown"));
         return;
       }
 
       if (!text.trim()) {
-        setError("Файл бўш ёки ўқиб бўлмади");
+        setError(t("uploaderErrEmpty"));
         return;
       }
 
       onFileSelected(text, file);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Файлни ўқишда хатолик юз берди");
+      setError(err instanceof Error ? err.message : t("uploaderErrRead"));
     } finally {
       setIsProcessing(false);
       if (fileInputRef.current) {
@@ -114,13 +116,13 @@ export function FileUploader({
             {converting && (
               <p className="text-xs text-primary-500 dark:text-primary-400 flex items-center gap-1 mt-0.5">
                 <Loader2 size={11} className="animate-spin" />
-                Конвертация қилинмоқда{directionLabel ? ` (${directionLabel})` : ""}…
+                {t("uploaderConverting")}{directionLabel ? ` (${directionLabel})` : ""}…
               </p>
             )}
             {ready && !converting && (
               <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
                 <CheckCircle2 size={11} />
-                Тайёр{directionLabel ? ` · ${directionLabel}` : ""}
+                {t("uploaderReady")}{directionLabel ? ` · ${directionLabel}` : ""}
               </p>
             )}
           </div>
@@ -131,7 +133,7 @@ export function FileUploader({
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors flex-shrink-0"
             >
               <Download size={14} />
-              Юклаб олиш
+              {t("uploaderDownload")}
             </button>
           )}
 
@@ -141,7 +143,7 @@ export function FileUploader({
               setError("");
             }}
             className="text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0"
-            aria-label="Файлни олиб ташлаш"
+            aria-label={t("uploaderRemove")}
           >
             <X size={16} />
           </button>
@@ -161,8 +163,8 @@ export function FileUploader({
             )}
             <span className="text-sm text-gray-500 dark:text-gray-400 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
               {isProcessing
-                ? "Юкланмоқда..."
-                : "Файл юклаш ёки бу ерга ташланг (.txt, .docx · макс 5MB)"}
+                ? t("uploaderProcessing")
+                : t("uploaderDropzone")}
             </span>
           </div>
         </div>
