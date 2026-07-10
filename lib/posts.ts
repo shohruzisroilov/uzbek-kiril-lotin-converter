@@ -15,6 +15,11 @@ import { WordKirilLotin } from "@/components/posts/WordKirilLotin";
 import { ApostrofQoidasi } from "@/components/posts/ApostrofQoidasi";
 import { XvaHFarqi } from "@/components/posts/XvaHFarqi";
 import { DocxKonvertatsiya } from "@/components/posts/DocxKonvertatsiya";
+import { OnlaynKonvertor } from "@/components/posts/OnlaynKonvertor";
+import { UzbekAlifbosiQoidalari } from "@/components/posts/UzbekAlifbosiQoidalari";
+import { TxtFaylKonvertatsiya } from "@/components/posts/TxtFaylKonvertatsiya";
+import { KirilLotinFarqi } from "@/components/posts/KirilLotinFarqi";
+import { TransliteratsiyaNima } from "@/components/posts/TransliteratsiyaNima";
 
 export const posts: Post[] = [
   {
@@ -87,6 +92,86 @@ export const posts: Post[] = [
       "docx kiril lotin",
     ],
     content: DocxKonvertatsiya,
+  },
+  {
+    slug: "onlayn-kiril-lotin-konvertor",
+    title: "Онлайн кирил лотин конвертор — қайсини танлаш керак?",
+    description:
+      "Ўзбек матнини кирилдан лотинга ўгириш учун онлайн конвертор танлашда нимага эътибор бериш керак? Аниқлик, форматлаш, махфийлик.",
+    date: "2026-06-01",
+    readingMinutes: 5,
+    keywords: [
+      "onlayn kiril lotin konvertor",
+      "онлайн конвертор",
+      "kiril lotin online",
+      "uzbek transliterator online",
+      "bepul konvertor",
+    ],
+    content: OnlaynKonvertor,
+  },
+  {
+    slug: "uzbek-alifbosi-qoidalari",
+    title: "Ўзбек лотин алифбоси қоидалари — тўлиқ қўлланма",
+    description:
+      "Ўзбек лотин алифбосининг расмий қоидалари: X ва H фарқи, апостроф, Ye/E, Sh, Ch, Ts, Oʻ, Gʻ ва бошқа ҳарфларни тўғри ёзиш.",
+    date: "2026-06-03",
+    readingMinutes: 7,
+    keywords: [
+      "uzbek lotin alifbosi qoidalari",
+      "o'zbek lotin yozuvi",
+      "lotin alifbosi",
+      "uzbek latin alphabet rules",
+      "ўзбек алифбоси қоидалари",
+    ],
+    content: UzbekAlifbosiQoidalari,
+  },
+  {
+    slug: "txt-faylni-kiril-lotinga-otkazish",
+    title: "TXT файлни кирилдан лотинга ўтказиш — онлайн бепул",
+    description:
+      "Оддий матн (.txt) файлини кирилдан лотинга ёки лотиндан кириллга онлайн, бепул ва тез ўгириш. Кодировка муаммолари ва уларнинг ечими.",
+    date: "2026-06-05",
+    readingMinutes: 4,
+    keywords: [
+      "txt fayl kiril lotin",
+      "txt konvertatsiya",
+      "matn fayl o'girish",
+      "txt file converter uzbek",
+      ".txt кирил лотин",
+    ],
+    content: TxtFaylKonvertatsiya,
+  },
+  {
+    slug: "kiril-lotin-nima-farqi",
+    title: "Кирил ва Лотин — қандай фарқланади ва қайси бири ишлатилади?",
+    description:
+      "Ўзбекистонда кирил ва лотин ёзуви параллель ишлатилади. Иккисининг фарқи, қаерда қайси ёзув қўлланиши ва ҳарфлар жадвали.",
+    date: "2026-06-07",
+    readingMinutes: 5,
+    keywords: [
+      "kiril lotin farqi",
+      "кирил лотин фарқи",
+      "o'zbek yozuvi",
+      "uzbek script comparison",
+      "кирил ёки лотин",
+    ],
+    content: KirilLotinFarqi,
+  },
+  {
+    slug: "transliteratsiya-nima",
+    title: "Транслитерация нима? — Ўзбек тилида транслитерация",
+    description:
+      "Транслитерация ва таржима фарқи, ўзбек тилида транслитерациянинг расмий қоидалари ва автоматик транслитерация қандай ишлайди.",
+    date: "2026-06-10",
+    readingMinutes: 5,
+    keywords: [
+      "transliteratsiya nima",
+      "транслитерация",
+      "uzbek transliteration",
+      "kiril lotin transliteratsiya",
+      "ўзбек транслитерация",
+    ],
+    content: TransliteratsiyaNima,
   },
 ];
 

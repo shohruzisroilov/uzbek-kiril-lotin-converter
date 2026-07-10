@@ -16,7 +16,7 @@ export function TextArea({ label, className = "", ...props }: TextAreaProps) {
         className={`
           input-base
           resize-none
-          min-h-[200px] sm:min-h-[280px] lg:min-h-[360px]
+          min-h-[280px] sm:min-h-[400px] lg:min-h-[520px]
           text-base leading-relaxed
           ${props.readOnly ? "cursor-default" : ""}
           ${className}

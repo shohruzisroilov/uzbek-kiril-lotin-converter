@@ -5,12 +5,10 @@ import {
   Copy,
   Download,
   Trash2,
-  ArrowLeftRight,
   CheckCheck,
   ChevronDown,
+  X,
 } from "lucide-react";
-import { TextArea } from "@/components/TextArea";
-import { Button } from "@/components/Button";
 import { FileUploader } from "@/components/FileUploader";
 import { SeoContent } from "@/components/SeoContent";
 import { useToast } from "@/components/ToastContext";
@@ -49,6 +47,9 @@ export function ConverterPage() {
   } | null>(null);
   const [fileConverting, setFileConverting] = useState(false);
   const [copied, setCopied]         = useState(false);
+  const [cardCopied, setCardCopied] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [donateOpen, setDonateOpen]   = useState(false);
 
   /* ── Persist ── */
   useEffect(() => {
@@ -73,16 +74,18 @@ export function ConverterPage() {
       : latinToCyrillic(text);
   }, []);
 
+  /* Auto-detect direction when input changes */
+  const handleInputChange = useCallback((text: string) => {
+    setInput(text);
+    if (text.trim()) {
+      setDirection(detectDirection(text));
+    }
+  }, []);
+
   /* Auto-convert whenever input or direction changes */
   useEffect(() => {
     setOutput(convert(input, direction));
   }, [input, direction, convert]);
-
-  const handleSwap = useCallback(() => {
-    setDirection((d) => (d === "cyrillic-to-latin" ? "latin-to-cyrillic" : "cyrillic-to-latin"));
-    setInput(output);
-    setOutput(input);
-  }, [input, output]);
 
   const handleCopy = useCallback(async () => {
     if (!output.trim()) {
@@ -217,7 +220,7 @@ export function ConverterPage() {
     }
   };
 
-  /* Keyboard shortcuts: Ctrl/⌘+K clear, Ctrl/⌘+Shift+S swap, Ctrl/⌘+Enter copy */
+  /* Keyboard shortcuts: Ctrl/⌘+K clear, Ctrl/⌘+Enter copy */
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const mod = e.ctrlKey || e.metaKey;
@@ -229,12 +232,6 @@ export function ConverterPage() {
         return;
       }
 
-      if (e.shiftKey && (e.key === "s" || e.key === "S")) {
-        e.preventDefault();
-        handleSwap();
-        return;
-      }
-
       if (e.key === "Enter") {
         e.preventDefault();
         handleCopy();
@@ -243,7 +240,7 @@ export function ConverterPage() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [handleClear, handleSwap, handleCopy]);
+  }, [handleClear, handleCopy]);
 
   const year = new Date().getFullYear();
 
@@ -306,11 +303,35 @@ export function ConverterPage() {
             >
               Блог
             </a>
+
+            <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0" />
+
+            <button
+              type="button"
+              onClick={() => setContactOpen(true)}
+              className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              title="IT хизматлари учун боғланинг"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
+                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+              </svg>
+              Боғланиш
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setDonateOpen(true)}
+              className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+            >
+              💛 Донат
+            </button>
           </nav>
         </div>
       </header>
 
-      <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+
+        {/* File uploader — yupqa banner */}
         <FileUploader
           onFileSelected={handleFileSelected}
           onFileClear={handleFileClear}
@@ -327,90 +348,86 @@ export function ConverterPage() {
           }
         />
 
-        <div role="group" aria-label="Конвертация йўналиши" className="flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 text-sm font-medium w-full sm:w-auto">
-          {(["cyrillic-to-latin", "latin-to-cyrillic"] as Direction[]).map((d) => (
-            <button
-              key={d}
-              onClick={() => setDirection(d)}
-              aria-pressed={direction === d}
-              className={`flex-1 sm:flex-none px-4 py-2 transition-colors ${
-                direction === d
-                  ? "bg-primary-600 text-white"
-                  : "bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"
-              }`}
-            >
-              {d === "cyrillic-to-latin" ? "Кирил → Лотин" : "Лотин → Кирил"}
-            </button>
-          ))}
-        </div>
+        {/* Two-panel converter */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <TextArea
-            label="Кириш"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={
-              direction === "cyrillic-to-latin"
-                ? "Кирил матнини киритинг..."
-                : "Лотин матнини киритинг..."
-            }
-          />
+          {/* LEFT — Input */}
+          <div className="flex flex-col bg-white dark:bg-gray-900">
+            {/* Panel header */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+              <span className="text-xs font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500">
+                Матн киритинг
+              </span>
+              <button
+                onClick={handleClear}
+                title="Тозалаш (Ctrl+K)"
+                className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Trash2 size={14} />
+              </button>
+            </div>
+            {/* Textarea */}
+            <textarea
+              value={input}
+              onChange={(e) => handleInputChange(e.target.value)}
+              placeholder="Кирил ёки Лотин матнини киритинг..."
+              className="flex-1 w-full px-4 py-3 bg-transparent text-base text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 resize-none outline-none min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+            />
+            {/* Footer: char count */}
+            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end">
+              <span className="text-[11px] text-gray-300 dark:text-gray-600 tabular-nums">
+                {input.length > 0 ? `${input.length.toLocaleString()} белги` : ""}
+              </span>
+            </div>
+          </div>
 
-          <TextArea
-            label="Натижа"
-            value={output}
-            readOnly
-            placeholder="Конвертация натижаси..."
-          />
-        </div>
+          {/* RIGHT — Output */}
+          <div className="flex flex-col bg-gray-50/60 dark:bg-gray-900/60">
+            {/* Panel header */}
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
+              <span className="text-xs font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500">
+                Натижа
+              </span>
+              <div className="flex items-center gap-1">
+                {/* Copy */}
+                <button
+                  onClick={handleCopy}
+                  title="Нусхалаш (Ctrl+Enter)"
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    copied
+                      ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
+                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                  }`}
+                >
+                  {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
+                  <span className="hidden sm:inline">{copied ? "Нусхаланди" : "Нусхалаш"}</span>
+                </button>
+                {/* Download */}
+                <button
+                  onClick={handleDownload}
+                  title="Юклаб олиш"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                >
+                  <Download size={13} />
+                  <span className="hidden sm:inline">Юклаб олиш</span>
+                </button>
+              </div>
+            </div>
+            {/* Textarea */}
+            <textarea
+              value={output}
+              readOnly
+              placeholder="Конвертация натижаси..."
+              className="flex-1 w-full px-4 py-3 bg-transparent text-base text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 resize-none outline-none cursor-default min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+            />
+            {/* Footer: char count */}
+            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end">
+              <span className="text-[11px] text-gray-300 dark:text-gray-600 tabular-nums">
+                {output.length > 0 ? `${output.length.toLocaleString()} белги` : ""}
+              </span>
+            </div>
+          </div>
 
-        <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-          <Button
-            onClick={handleSwap}
-            variant="secondary"
-            size="md"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
-            title="Кириш ва натижани алмаштириш (Ctrl+Shift+S)"
-          >
-            <ArrowLeftRight size={16} />
-            Алмаштириш
-          </Button>
-
-          <div className="hidden sm:block sm:flex-1" />
-
-          <Button
-            onClick={handleCopy}
-            variant="secondary"
-            size="md"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 min-w-[10ch]"
-            title="Натижани нусхалаш (Ctrl+Enter)"
-          >
-            <span className="inline-flex items-center gap-2">
-              {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
-              <span>{copied ? "Нусхаланди" : "Нусхалаш"}</span>
-            </span>
-          </Button>
-
-          <Button
-            onClick={handleDownload}
-            variant="primary"
-            size="md"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
-          >
-            <Download size={16} />
-            Юклаб олиш
-          </Button>
-
-          <Button
-            onClick={handleClear}
-            variant="secondary"
-            size="md"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2"
-            title="Барча матнни тозалаш (Ctrl+K)"
-          >
-            <Trash2 size={16} />
-            Тозалаш
-          </Button>
         </div>
       </main>
       </div>
@@ -559,8 +576,132 @@ export function ConverterPage() {
         </div>
       </section>
 
-      <footer className="border-t border-gray-100 dark:border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
+      {/* Contact Modal */}
+      {contactOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setContactOpen(false)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-800">
+              <h2 className="text-base font-semibold text-gray-900 dark:text-white">Боғланиш</h2>
+              <button
+                onClick={() => setContactOpen(false)}
+                className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="p-5 flex flex-col gap-3">
+              {/* IT xizmatlari */}
+              <a
+                href="https://t.me/Shohruz_Isroilov"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/40 dark:hover:bg-primary-900/20 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-900/40 flex items-center justify-center flex-shrink-0">
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 text-primary-600 dark:text-primary-400">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                  </svg>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    IT хизматлари
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+                    Веб-сайт, мобил илова, дастур ёки бошқа IT лойиҳа буюртмаси учун
+                  </p>
+                  <p className="text-xs font-medium text-primary-600 dark:text-primary-400 mt-1.5">
+                    @Shohruz_Isroilov →
+                  </p>
+                </div>
+              </a>
+
+              {/* Muammo / taklif */}
+              <a
+                href="https://t.me/Shohruz_Isroilov"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 dark:border-gray-800 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/40 dark:hover:bg-primary-900/20 transition-colors group"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center flex-shrink-0">
+                  <span className="text-lg">💬</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors">
+                    Муаммо ёки таклиф
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed">
+                    Сайтда хато топдингизми ёки яхшилаш учун таклифингиз борми?
+                  </p>
+                  <p className="text-xs font-medium text-primary-600 dark:text-primary-400 mt-1.5">
+                    @Shohruz_Isroilov →
+                  </p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Donate Modal */}
+      {donateOpen && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => setDonateOpen(false)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-2xl shadow-2xl p-8 flex flex-col items-center text-center gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setDonateOpen(false)}
+              className="absolute top-4 right-4 p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              <X size={18} />
+            </button>
+            <div className="text-4xl">💛</div>
+            <div>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Лойиҳани қўллаб-қувватланг</h2>
+              <p className="mt-1.5 text-sm text-gray-500 dark:text-gray-400">
+                Сайт бепул ва рекламасиз ишлайди. Агар фойдали бўлса — донат қилинг.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                const ok = await copyToClipboard("9860190110799466");
+                if (ok) {
+                  setCardCopied(true);
+                  addToast("Карта рақами нусхаланди", "success", 1500);
+                  setTimeout(() => setCardCopied(false), 2000);
+                }
+              }}
+              className="group w-full inline-flex items-center justify-between gap-3 px-5 py-3 rounded-xl border-2 border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/20 hover:border-primary-400 dark:hover:border-primary-600 transition-colors"
+              title="Нусхалаш"
+            >
+              <span className="font-mono font-bold text-lg text-gray-800 dark:text-gray-200 tracking-widest">
+                9860 1901 1079 9466
+              </span>
+              {cardCopied
+                ? <CheckCheck size={16} className="text-emerald-500 flex-shrink-0" />
+                : <Copy size={16} className="opacity-40 group-hover:opacity-100 transition-opacity text-primary-600 dark:text-primary-400 flex-shrink-0" />
+              }
+            </button>
+            <p className="text-xs text-gray-400 dark:text-gray-500">Shohruz Isroilov · Humo karta</p>
+          </div>
+        </div>
+      )}
+
+      <footer className="border-t border-gray-100 dark:border-gray-800"><div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
           <span className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span>
               © {year}{" "}

@@ -46,6 +46,11 @@ export default async function BlogPostPage({ params }: Props) {
   const Content = post.content;
   const url = `${SITE_URL}/blog/${post.slug}`;
 
+  // Related posts — boshqa 3 ta maqola
+  const related = posts
+    .filter((p) => p.slug !== slug)
+    .slice(0, 3);
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -128,15 +133,7 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         </article>
 
-        <footer className="mt-12 pt-8 border-t border-gray-100 dark:border-gray-800">
-          <Link
-            href="/blog"
-            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
-          >
-            ← Барча мақолалар
-          </Link>
-        </footer>
-
+        {/* CTA */}
         <div className="mt-10 p-6 rounded-xl border border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/20 text-center">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
             Матнни ёки файлни ҳозироқ ўгиринг
@@ -151,6 +148,43 @@ export default async function BlogPostPage({ params }: Props) {
             Конверторга ўтиш
           </Link>
         </div>
+
+        {/* Related posts */}
+        {related.length > 0 && (
+          <div className="mt-12">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+              Бошқа мақолалар
+            </h2>
+            <ul className="space-y-3">
+              {related.map((p) => (
+                <li key={p.slug}>
+                  <Link
+                    href={`/blog/${p.slug}`}
+                    className="flex items-start gap-3 p-4 rounded-lg border border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900 hover:border-primary-300 dark:hover:border-primary-700 transition-colors"
+                  >
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-gray-900 dark:text-white leading-snug">
+                        {p.title}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {p.readingMinutes} дақ. ўқиш
+                      </p>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        <footer className="mt-10 pt-8 border-t border-gray-100 dark:border-gray-800">
+          <Link
+            href="/blog"
+            className="text-sm text-primary-600 dark:text-primary-400 hover:underline"
+          >
+            ← Барча мақолалар
+          </Link>
+        </footer>
       </div>
     </div>
   );
