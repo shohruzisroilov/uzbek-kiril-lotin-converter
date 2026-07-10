@@ -4,34 +4,34 @@ export function SeoContent() {
       {/* Harflar jadvali */}
       <section id="harflar" className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
-          <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+          <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
             Алифбо
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
             Кирил ва Лотин ҳарфлари жадвали
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base text-gray-700 dark:text-gray-300 max-w-2xl mx-auto">
             Ўзбек тилидаги барча кирил ҳарфларининг лотинча эквиваленти ва мисоллар билан тўлиқ жадвал.
           </p>
         </div>
 
-        <div className="max-w-4xl mx-auto overflow-x-auto rounded-xl border border-gray-100 dark:border-gray-800">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-800/60">
-              <tr className="text-left text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400">
-                <th className="px-4 py-3 font-semibold">Кирил</th>
-                <th className="px-4 py-3 font-semibold">Лотин</th>
-                <th className="px-4 py-3 font-semibold">Мисол (Кирил)</th>
-                <th className="px-4 py-3 font-semibold">Мисол (Лотин)</th>
+        <div className="max-w-4xl mx-auto overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-800">
+          <table className="w-full text-base">
+            <thead className="bg-gray-100 dark:bg-gray-800/80 border-b border-gray-300 dark:border-gray-700">
+              <tr className="text-left text-sm uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                <th className="px-4 py-3.5 font-bold">Кирил</th>
+                <th className="px-4 py-3.5 font-bold">Лотин</th>
+                <th className="px-4 py-3.5 font-bold">Мисол (Кирил)</th>
+                <th className="px-4 py-3.5 font-bold">Мисол (Лотин)</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-850">
               {LETTER_TABLE.map((row) => (
                 <tr key={row.cyr} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/40">
-                  <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-white">{row.cyr}</td>
-                  <td className="px-4 py-2.5 font-semibold text-gray-900 dark:text-white">{row.lat}</td>
-                  <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{row.exCyr}</td>
-                  <td className="px-4 py-2.5 text-gray-700 dark:text-gray-300">{row.exLat}</td>
+                  <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{row.cyr}</td>
+                  <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{row.lat}</td>
+                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{row.exCyr}</td>
+                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{row.exLat}</td>
                 </tr>
               ))}
             </tbody>
@@ -42,7 +42,7 @@ export function SeoContent() {
       {/* Qoidalar */}
       <section id="qoidalar" className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
-          <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+          <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
             Қоидалар
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
@@ -54,12 +54,12 @@ export function SeoContent() {
           {RULES.map((rule) => (
             <article
               key={rule.title}
-              className="p-5 rounded-xl border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40"
+              className="p-5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40"
             >
-              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-2">
+              <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
                 {rule.title}
               </h3>
-              <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-3">
+              <p className="text-base text-gray-700 dark:text-gray-300 leading-relaxed mb-3">
                 {rule.text}
               </p>
               {rule.examples && (
@@ -67,7 +67,7 @@ export function SeoContent() {
                   {rule.examples.map((ex) => (
                     <span
                       key={ex}
-                      className="inline-block px-2.5 py-1 rounded-md bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 text-xs font-mono text-gray-700 dark:text-gray-300"
+                      className="inline-block px-3 py-1 rounded-md bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-700 text-sm font-mono font-semibold text-gray-800 dark:text-gray-200"
                     >
                       {ex}
                     </span>
@@ -82,7 +82,7 @@ export function SeoContent() {
       {/* Haqida */}
       <section id="haqida" className="space-y-6 scroll-mt-20">
         <div className="text-center space-y-2">
-          <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+          <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
             Тарих
           </span>
           <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
@@ -90,7 +90,7 @@ export function SeoContent() {
           </h2>
         </div>
 
-        <div className="max-w-3xl mx-auto prose prose-sm sm:prose-base dark:prose-invert prose-headings:font-semibold prose-p:text-gray-600 dark:prose-p:text-gray-400 prose-p:leading-relaxed prose-strong:text-gray-900 dark:prose-strong:text-white">
+        <div className="max-w-3xl mx-auto prose prose-base sm:prose-lg dark:prose-invert prose-headings:font-bold prose-p:text-gray-700 dark:prose-p:text-gray-300 prose-p:leading-loose prose-strong:text-gray-950 dark:prose-strong:text-gray-50">
           <p>
             Ўзбек тили <strong>XX асрда</strong> бир неча марта алифбосини алмаштирган.
             1929 йилгача араб ёзуви, 1929–1940 йилларда лотин ёзуви, 1940 йилдан бошлаб

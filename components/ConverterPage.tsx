@@ -8,10 +8,13 @@ import {
   CheckCheck,
   ChevronDown,
   X,
+  Moon,
+  Sun,
 } from "lucide-react";
 import { FileUploader } from "@/components/FileUploader";
 import { SeoContent } from "@/components/SeoContent";
 import { useToast } from "@/components/ToastContext";
+import { useTheme } from "@/components/ThemeProvider";
 import {
   cyrillicToLatin,
   latinToCyrillic,
@@ -33,6 +36,12 @@ function detectDirection(text: string): Direction {
 
 export function ConverterPage() {
   const { addToast } = useToast();
+  const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [input, setInput]           = useState("");
   const [output, setOutput]         = useState("");
@@ -266,7 +275,7 @@ export function ConverterPage() {
             : "border-transparent bg-white dark:bg-gray-900"
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-3 sm:py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
           <a href="/" className="flex flex-shrink-0 items-baseline gap-2 text-center sm:text-left">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
               Kiril <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Lotin
@@ -325,11 +334,23 @@ export function ConverterPage() {
             >
               💛 Донат
             </button>
+
+            {mounted && (
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label="Темани ўзгартириш"
+                title={theme === "light" ? "Тунги режимга ўтиш" : "Кун режимига ўтиш"}
+                className="whitespace-nowrap inline-flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors ml-1"
+              >
+                {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
+              </button>
+            )}
           </nav>
         </div>
       </header>
 
-      <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-4">
+      <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-full px-4 sm:px-8 lg:px-12 py-6 space-y-4">
 
         {/* File uploader — yupqa banner */}
         <FileUploader
@@ -349,21 +370,22 @@ export function ConverterPage() {
         />
 
         {/* Two-panel converter */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-700 shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-gray-200 dark:divide-gray-700">
+        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600 shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-gray-300 dark:divide-gray-600">
 
           {/* LEFT — Input */}
           <div className="flex flex-col bg-white dark:bg-gray-900">
             {/* Panel header */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
-              <span className="text-xs font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500">
+            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
+              <span className="text-sm font-bold tracking-wide uppercase text-gray-700 dark:text-gray-300">
                 Матн киритинг
               </span>
               <button
                 onClick={handleClear}
                 title="Тозалаш (Ctrl+K)"
-                className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                <Trash2 size={14} />
+                <Trash2 size={18} />
+                <span className="hidden sm:inline">Тозалаш</span>
               </button>
             </div>
             {/* Textarea */}
@@ -371,11 +393,11 @@ export function ConverterPage() {
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder="Кирил ёки Лотин матнини киритинг..."
-              className="flex-1 w-full px-4 py-3 bg-transparent text-base text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 resize-none outline-none min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
-            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end">
-              <span className="text-[11px] text-gray-300 dark:text-gray-600 tabular-nums">
+            <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 tabular-nums">
                 {input.length > 0 ? `${input.length.toLocaleString()} белги` : ""}
               </span>
             </div>
@@ -384,31 +406,31 @@ export function ConverterPage() {
           {/* RIGHT — Output */}
           <div className="flex flex-col bg-gray-50/60 dark:bg-gray-900/60">
             {/* Panel header */}
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-gray-100 dark:border-gray-800">
-              <span className="text-xs font-semibold tracking-wide uppercase text-gray-400 dark:text-gray-500">
+            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-300 dark:border-gray-700">
+              <span className="text-sm font-bold tracking-wide uppercase text-gray-700 dark:text-gray-300">
                 Натижа
               </span>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 {/* Copy */}
                 <button
                   onClick={handleCopy}
                   title="Нусхалаш (Ctrl+Enter)"
-                  className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                  className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold transition-colors ${
                     copied
                       ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400"
-                      : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"
+                      : "text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800"
                   }`}
                 >
-                  {copied ? <CheckCheck size={13} /> : <Copy size={13} />}
+                  {copied ? <CheckCheck size={16} /> : <Copy size={16} />}
                   <span className="hidden sm:inline">{copied ? "Нусхаланди" : "Нусхалаш"}</span>
                 </button>
                 {/* Download */}
                 <button
                   onClick={handleDownload}
                   title="Юклаб олиш"
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-md text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-bold text-white bg-primary-600 hover:bg-primary-700 transition-colors"
                 >
-                  <Download size={13} />
+                  <Download size={16} />
                   <span className="hidden sm:inline">Юклаб олиш</span>
                 </button>
               </div>
@@ -418,11 +440,11 @@ export function ConverterPage() {
               value={output}
               readOnly
               placeholder="Конвертация натижаси..."
-              className="flex-1 w-full px-4 py-3 bg-transparent text-base text-gray-800 dark:text-gray-100 placeholder-gray-300 dark:placeholder-gray-600 resize-none outline-none cursor-default min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
-            <div className="px-4 py-2 border-t border-gray-100 dark:border-gray-800 flex items-center justify-end">
-              <span className="text-[11px] text-gray-300 dark:text-gray-600 tabular-nums">
+            <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
+              <span className="text-xs font-bold text-gray-500 dark:text-gray-400 tabular-nums">
                 {output.length > 0 ? `${output.length.toLocaleString()} белги` : ""}
               </span>
             </div>
@@ -434,23 +456,23 @@ export function ConverterPage() {
 
       <section
         aria-labelledby="about-heading"
-        className="border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900"
+        className="border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-14 space-y-10 sm:space-y-14">
+        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-10 sm:py-14 space-y-10 sm:space-y-14">
           {/* About */}
           <div id="about" className="max-w-3xl mx-auto text-center space-y-4 scroll-mt-20">
-            <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+            <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
               Сайт ҳақида
             </span>
-            <h2 id="about-heading" className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
+            <h2 id="about-heading" className="text-2xl sm:text-4xl font-bold text-gray-900 dark:text-white">
               Kiril ↔ Lotin Konvertor
             </h2>
-            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+            <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-loose">
               O'zbek tilidagi matnlarni Kiril alifbosidan Lotin alifbosiga va teskari,
               Lotindan Kirilga bir zumda o'girish uchun bepul onlayn vosita.
-              Sayt <strong className="text-gray-800 dark:text-gray-200">matn</strong>,{" "}
-              <strong className="text-gray-800 dark:text-gray-200">.txt</strong> va{" "}
-              <strong className="text-gray-800 dark:text-gray-200">.docx</strong> fayllarni qo'llab-quvvatlaydi.
+              Sayt <strong className="text-gray-900 dark:text-gray-50">matn</strong>,{" "}
+              <strong className="text-gray-900 dark:text-gray-50">.txt</strong> va{" "}
+              <strong className="text-gray-900 dark:text-gray-50">.docx</strong> fayllarni qo'llab-quvvatlaydi.
               Docx formatlash to'liq saqlanib qoladi. Barcha amallar faqat sizning
               brauzeringizda amalga oshiriladi, matn serverga yuborilmaydi.
             </p>
@@ -461,13 +483,13 @@ export function ConverterPage() {
             <div className="max-w-3xl mx-auto stagger space-y-10 sm:space-y-12">
               {/* Block 1 — the moat */}
               <article className="space-y-3">
-                <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+                <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
                   Maxfiylik
                 </span>
                 <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
                   Matnингиз serverga yuborilmaydi
                 </h3>
-                <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-lg sm:text-xl text-gray-700 dark:text-gray-300 leading-relaxed">
                   Barcha konvertatsiya jarayoni sizning brauzeringizda amalga oshiriladi.
                   Biz ham, boshqa hech kim ham yozganingizni ko'rmaydi. Bir marta ochildandan
                   keyin sayt internetsiz ham ishlayveradi.
@@ -476,17 +498,17 @@ export function ConverterPage() {
 
               {/* Block 2 — the functional differentiator */}
               <article className="space-y-2">
-                <h3 className="text-lg sm:text-xl font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">
                   .docx formatlash saqlanib qoladi
                 </h3>
-                <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                <p className="text-base sm:text-lg text-gray-700 dark:text-gray-300 leading-relaxed">
                   Word hujjatlaridagi shrift, jadvallar, rangli matnlar va boshqa formatlash
                   o'z joyida qoladi. Faqat harflar almashadi.
                 </p>
               </article>
 
               {/* Block 3 — footnote */}
-              <p className="text-sm text-gray-500 dark:text-gray-500">
+              <p className="text-base font-bold text-gray-600 dark:text-gray-400">
                 Bepul. Ro'yxatdan o'tish yo'q. Reklama yo'q.
               </p>
             </div>
@@ -498,14 +520,14 @@ export function ConverterPage() {
           {/* FAQ */}
           <div id="faq" className="space-y-6 scroll-mt-20">
             <div className="text-center space-y-2">
-              <span className="inline-block text-[11px] font-semibold tracking-wider uppercase text-primary-600 dark:text-primary-400">
+              <span className="inline-block text-xs font-bold tracking-wider uppercase text-primary-600 dark:text-primary-400">
                 Savollar
               </span>
               <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
                 Tez-tez beriladigan savollar
               </h2>
             </div>
-            <div className="max-w-3xl mx-auto space-y-2">
+            <div className="max-w-3xl mx-auto space-y-2.5">
               {[
                 {
                   q: "Saytdan foydalanish bepulmi?",
@@ -545,25 +567,25 @@ export function ConverterPage() {
                   <div
                     key={item.q}
                     data-open={isOpen}
-                    className="faq-item border border-gray-100 dark:border-gray-800 bg-gray-50/60 dark:bg-gray-800/40"
+                    className="faq-item border border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40"
                   >
                     <button
                       type="button"
                       onClick={() => setOpenFaq(isOpen ? null : item.q)}
                       aria-expanded={isOpen}
-                      className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left select-none hover:bg-gray-100/60 dark:hover:bg-gray-800/60 smooth-transition"
+                      className="w-full flex items-center justify-between gap-3 px-4 py-4 text-left select-none hover:bg-gray-100/60 dark:hover:bg-gray-800/60 smooth-transition"
                     >
-                      <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200">
+                      <h3 className="text-base sm:text-lg font-bold text-gray-900 dark:text-gray-50">
                         {item.q}
                       </h3>
                       <ChevronDown
-                        size={18}
-                        className="faq-chevron flex-shrink-0 text-gray-400"
+                        size={20}
+                        className="faq-chevron flex-shrink-0 text-gray-500 dark:text-gray-400"
                       />
                     </button>
                     <div className="faq-body">
                       <div>
-                        <div className="px-4 pb-4 pt-1 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        <div className="px-4 pb-4 pt-1.5 text-base text-gray-700 dark:text-gray-300 leading-relaxed">
                           {item.a}
                         </div>
                       </div>
@@ -701,7 +723,7 @@ export function ConverterPage() {
         </div>
       )}
 
-      <footer className="border-t border-gray-100 dark:border-gray-800"><div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
+      <footer className="border-t border-gray-100 dark:border-gray-800"><div className="max-w-full px-4 sm:px-8 lg:px-12 py-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] sm:text-xs text-gray-400 dark:text-gray-500 text-center sm:text-left">
           <span className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
             <span>
               © {year}{" "}
