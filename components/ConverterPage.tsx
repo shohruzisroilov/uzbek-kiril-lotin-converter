@@ -10,6 +10,7 @@ import {
   X,
   Moon,
   Sun,
+  Menu,
 } from "lucide-react";
 import { FileUploader } from "@/components/FileUploader";
 import { SeoContent } from "@/components/SeoContent";
@@ -41,6 +42,7 @@ export function ConverterPage() {
   const { locale, setLocale, t } = useLanguage();
   const [mounted, setMounted] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -285,88 +287,93 @@ export function ConverterPage() {
             : "border-transparent bg-white dark:bg-gray-900"
         }`}
       >
-        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-1 sm:py-1.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4">
+        <div className="max-w-full px-4 sm:px-8 lg:px-12 py-2 flex items-center justify-between gap-4">
           <a
             href="/"
             onClick={(e) => {
               e.preventDefault();
               handleClear();
             }}
-            className="flex items-center gap-2.5 select-none group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 rounded-lg py-1 px-2 -mx-2"
+            className="flex items-center gap-2 select-none group focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-500 rounded-lg py-1"
           >
             <img
               src="/logo.png"
               alt="Logo"
-              className="w-12 h-12 object-contain"
+              className="w-10 h-10 sm:w-12 sm:h-12 object-contain"
             />
-            <div className="flex flex-col items-start leading-none">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight">
+            <div className="hidden sm:flex flex-col items-start leading-none">
+              <h1 className="text-lg sm:text-2xl font-bold tracking-tight text-gray-900 dark:text-white leading-tight whitespace-nowrap">
                 Kiril <span className="text-primary-600 dark:text-primary-400" aria-hidden="true">↔</span> Lotin
               </h1>
-              <span className="text-[10px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
+              <span className="hidden sm:inline text-[9px] sm:text-xs font-medium text-gray-400 dark:text-gray-500">
                 kirillotin.uz
               </span>
             </div>
           </a>
-          <nav
-            aria-label="Сайт навигацияси"
-            className="flex min-w-0 items-center justify-center sm:justify-end gap-1 text-xs sm:text-sm overflow-x-auto -mx-2 px-2 sm:overflow-visible"
-          >
-            <a
-              href="#about"
-              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {t("navAbout")}
-            </a>
-            <a
-              href="#features"
-              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {t("navFeatures")}
-            </a>
-            <a
-              href="#faq"
-              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {t("navFaq")}
-            </a>
-            <a
-              href="/blog"
-              className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              {t("navBlog")}
-            </a>
 
-            <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0" />
-
-            <button
-              type="button"
-              onClick={() => setContactOpen(true)}
-              className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              title={t("contactTooltip")}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* Desktop Navigation Links */}
+            <nav
+              aria-label="Сайт навигацияси"
+              className="hidden md:flex items-center gap-1 text-sm mr-2"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
-                <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
-              </svg>
-              {t("navContact")}
-            </button>
+              <a
+                href="#about"
+                className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {t("navAbout")}
+              </a>
+              <a
+                href="#features"
+                className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {t("navFeatures")}
+              </a>
+              <a
+                href="#faq"
+                className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {t("navFaq")}
+              </a>
+              <a
+                href="/blog"
+                className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                {t("navBlog")}
+              </a>
 
+              <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0" />
+
+              <button
+                type="button"
+                onClick={() => setContactOpen(true)}
+                className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                title={t("contactTooltip")}
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 flex-shrink-0" aria-hidden="true">
+                  <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+                {t("navContact")}
+              </button>
+            </nav>
+
+            {/* Donate Button - Always visible */}
             <button
               type="button"
               onClick={() => setDonateOpen(true)}
-              className="whitespace-nowrap inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white transition-colors"
+              className="inline-flex whitespace-nowrap items-center gap-1 px-2.5 py-1.5 rounded-md bg-primary-600 hover:bg-primary-700 text-white text-xs sm:text-sm font-semibold transition-colors"
             >
               {t("navDonate")}
             </button>
 
             {mounted && (
-              <div className="flex items-center gap-1.5 ml-1">
+              <div className="flex items-center gap-1.5">
                 {/* Language Selector Dropdown */}
                 <div className="relative inline-block text-left">
                   <button
                     type="button"
                     onClick={() => setLangOpen(!langOpen)}
-                    className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 text-[11px] sm:text-xs font-bold transition-colors focus:outline-none"
+                    className="whitespace-nowrap inline-flex items-center gap-1 px-2 py-1.5 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 text-[11px] sm:text-xs font-bold transition-colors focus:outline-none"
                   >
                     <span>
                       {locale === "uz-cyr"
@@ -394,7 +401,7 @@ export function ConverterPage() {
                       />
                       
                       {/* Dropdown options */}
-                      <div className="absolute right-0 mt-1.5 w-36 rounded-xl bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-850 shadow-lg py-1 z-40 focus:outline-none animate-in fade-in-50 slide-in-from-top-1 duration-100">
+                      <div className="absolute right-0 mt-1.5 w-36 rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg ring-1 ring-black/5 dark:ring-white/10 py-1 z-40 focus:outline-none">
                         <button
                           onClick={() => {
                             setLocale("uz-cyr");
@@ -462,14 +469,67 @@ export function ConverterPage() {
                   onClick={toggleTheme}
                   aria-label={theme === "light" ? t("themeToggleDark") : t("themeToggleLight")}
                   title={theme === "light" ? t("themeToggleDark") : t("themeToggleLight")}
-                  className="whitespace-nowrap inline-flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-850 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
+                  className="whitespace-nowrap inline-flex items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors"
                 >
                   {theme === "light" ? <Moon size={15} /> : <Sun size={15} />}
                 </button>
               </div>
             )}
-          </nav>
+
+            {/* Mobile Hamburguer Menu Button */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="inline-flex md:hidden items-center justify-center w-8 h-8 rounded-md bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors focus:outline-none"
+              aria-label="Menyuni ochish"
+            >
+              {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+            </button>
+          </div>
         </div>
+
+        {/* Mobile Dropdown Navigation Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 py-3 px-4 flex flex-col gap-1.5 animate-fade-in">
+            <a
+              href="#about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
+            >
+              {t("navAbout")}
+            </a>
+            <a
+              href="#features"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
+            >
+              {t("navFeatures")}
+            </a>
+            <a
+              href="#faq"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
+            >
+              {t("navFaq")}
+            </a>
+            <a
+              href="/blog"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
+            >
+              {t("navBlog")}
+            </a>
+            <button
+              onClick={() => {
+                setContactOpen(true);
+                setMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
+            >
+              {t("navContact")}
+            </button>
+          </div>
+        )}
       </header>
 
       <main id="main" className="flex-1 flex flex-col justify-center w-full max-w-full px-4 sm:px-8 lg:px-12 py-6 space-y-4">
@@ -504,7 +564,7 @@ export function ConverterPage() {
         />
 
         {/* Two-panel converter */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600 shadow-sm divide-y lg:divide-y-0 lg:divide-x divide-gray-300 dark:divide-gray-600">
+        <div className="grid grid-cols-1 md:grid-cols-2 rounded-2xl overflow-hidden border border-gray-300 dark:border-gray-600 shadow-sm divide-y md:divide-y-0 md:divide-x divide-gray-300 dark:divide-gray-600">
 
           {/* LEFT — Input */}
           <div className="flex flex-col bg-white dark:bg-gray-900">
@@ -527,7 +587,7 @@ export function ConverterPage() {
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder={t("panelInputPlaceholder")}
-              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
@@ -574,7 +634,7 @@ export function ConverterPage() {
               value={output}
               readOnly
               placeholder={t("panelOutputPlaceholder")}
-              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[280px] sm:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">

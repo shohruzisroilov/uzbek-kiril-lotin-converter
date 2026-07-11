@@ -107,46 +107,63 @@ export function FileUploader({
       />
 
       {currentFileName ? (
-        <div className="flex items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl">
-          <FileText size={18} className="text-primary-600 dark:text-primary-400 flex-shrink-0" />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-primary-700 dark:text-primary-300 truncate">
-              {currentFileName}
-            </p>
-            {converting && (
-              <p className="text-xs text-primary-500 dark:text-primary-400 flex items-center gap-1 mt-0.5">
-                <Loader2 size={11} className="animate-spin" />
-                {t("uploaderConverting")}{directionLabel ? ` (${directionLabel})` : ""}…
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 px-4 py-3 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-xl">
+          <div className="flex items-start gap-3 flex-1 min-w-0">
+            <FileText size={18} className="text-primary-600 dark:text-primary-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-primary-700 dark:text-primary-300 truncate">
+                {currentFileName}
               </p>
-            )}
-            {ready && !converting && (
-              <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
-                <CheckCircle2 size={11} />
-                {t("uploaderReady")}{directionLabel ? ` · ${directionLabel}` : ""}
-              </p>
-            )}
+              {converting && (
+                <p className="text-xs text-primary-500 dark:text-primary-400 flex items-center gap-1 mt-0.5">
+                  <Loader2 size={11} className="animate-spin" />
+                  {t("uploaderConverting")}{directionLabel ? ` (${directionLabel})` : ""}…
+                </p>
+              )}
+              {ready && !converting && (
+                <p className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1 mt-0.5">
+                  <CheckCircle2 size={11} />
+                  {t("uploaderReady")}{directionLabel ? ` · ${directionLabel}` : ""}
+                </p>
+              )}
+            </div>
+            
+            {/* Remove button stays in row with file details on mobile */}
+            <button
+              onClick={() => {
+                onFileClear?.();
+                setError("");
+              }}
+              className="text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0 p-1 sm:hidden"
+              aria-label={t("uploaderRemove")}
+            >
+              <X size={16} />
+            </button>
           </div>
 
-          {ready && !converting && onDownload && (
-            <button
-              onClick={onDownload}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors flex-shrink-0"
-            >
-              <Download size={14} />
-              {t("uploaderDownload")}
-            </button>
-          )}
+          <div className="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto">
+            {ready && !converting && onDownload && (
+              <button
+                onClick={onDownload}
+                className="inline-flex items-center justify-center gap-1.5 px-4 py-2 sm:px-3 sm:py-1.5 rounded-lg bg-primary-600 hover:bg-primary-700 text-white text-xs font-semibold transition-colors w-full sm:w-auto flex-shrink-0 shadow-sm"
+              >
+                <Download size={14} />
+                {t("uploaderDownload")}
+              </button>
+            )}
 
-          <button
-            onClick={() => {
-              onFileClear?.();
-              setError("");
-            }}
-            className="text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0"
-            aria-label={t("uploaderRemove")}
-          >
-            <X size={16} />
-          </button>
+            {/* Remove button shifts right on larger screens */}
+            <button
+              onClick={() => {
+                onFileClear?.();
+                setError("");
+              }}
+              className="hidden sm:block text-primary-400 hover:text-primary-600 dark:hover:text-primary-200 transition-colors flex-shrink-0 p-1"
+              aria-label={t("uploaderRemove")}
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
       ) : (
         <div

@@ -25,22 +25,22 @@ export function SeoContent() {
         </div>
 
         <div className="max-w-4xl mx-auto overflow-x-auto rounded-xl border border-gray-300 dark:border-gray-800">
-          <table className="w-full text-base">
+          <table className="w-full text-xs sm:text-base">
             <thead className="bg-gray-100 dark:bg-gray-800/80 border-b border-gray-300 dark:border-gray-700">
-              <tr className="text-left text-sm uppercase tracking-wider text-gray-700 dark:text-gray-300">
-                <th className="px-4 py-3.5 font-bold">{t("seoThCyr")}</th>
-                <th className="px-4 py-3.5 font-bold">{t("seoThLat")}</th>
-                <th className="px-4 py-3.5 font-bold">{t("seoThExCyr")}</th>
-                <th className="px-4 py-3.5 font-bold">{t("seoThExLat")}</th>
+              <tr className="text-left text-[10px] sm:text-sm uppercase tracking-wider text-gray-700 dark:text-gray-300">
+                <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold">{t("seoThCyr")}</th>
+                <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold">{t("seoThLat")}</th>
+                <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold">{t("seoThExCyr")}</th>
+                <th className="px-2.5 py-3 sm:px-4 sm:py-3.5 font-bold">{t("seoThExLat")}</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-850">
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
               {LETTER_TABLE.map((row) => (
                 <tr key={row.cyr} className="hover:bg-gray-50/60 dark:hover:bg-gray-800/40">
-                  <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{row.cyr}</td>
-                  <td className="px-4 py-3 font-bold text-gray-900 dark:text-white">{row.lat}</td>
-                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{row.exCyr}</td>
-                  <td className="px-4 py-3 font-medium text-gray-800 dark:text-gray-200">{row.exLat}</td>
+                  <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 font-bold text-gray-900 dark:text-white">{row.cyr}</td>
+                  <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 font-bold text-gray-900 dark:text-white">{row.lat}</td>
+                  <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 font-medium text-gray-800 dark:text-gray-200">{row.exCyr}</td>
+                  <td className="px-2.5 py-2.5 sm:px-4 sm:py-3 font-medium text-gray-800 dark:text-gray-200">{row.exLat}</td>
                 </tr>
               ))}
             </tbody>
@@ -63,7 +63,7 @@ export function SeoContent() {
           {rules.map((rule) => (
             <article
               key={rule.title}
-              className="p-5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40"
+              className="p-4 sm:p-5 rounded-xl border border-gray-300 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-800/40"
             >
               <h3 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-2">
                 {rule.title}
