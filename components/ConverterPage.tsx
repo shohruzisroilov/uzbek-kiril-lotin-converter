@@ -587,7 +587,7 @@ export function ConverterPage() {
               value={input}
               onChange={(e) => handleInputChange(e.target.value)}
               placeholder={t("panelInputPlaceholder")}
-              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-base sm:text-lg text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
@@ -634,7 +634,7 @@ export function ConverterPage() {
               value={output}
               readOnly
               placeholder={t("panelOutputPlaceholder")}
-              className="flex-1 w-full px-4 py-3 bg-transparent text-lg sm:text-xl text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
+              className="flex-1 w-full px-4 py-3 bg-transparent text-base sm:text-lg text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 resize-none outline-none cursor-default min-h-[200px] sm:min-h-[300px] md:min-h-[400px] lg:min-h-[480px] leading-relaxed"
             />
             {/* Footer: char count */}
             <div className="px-4 py-2.5 border-t border-gray-300 dark:border-gray-700 flex items-center justify-end">
