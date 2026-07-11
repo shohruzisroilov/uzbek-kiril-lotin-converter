@@ -1,0 +1,3 @@
+# GitHub til statistikasida yordamchi agent va kesh skriptlarini hisobga olmaslik
+.agents/** linguist-detectable=false
+.impeccable/** linguist-detectable=false
