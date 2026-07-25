@@ -67,7 +67,6 @@ export function ConverterPage() {
   } | null>(null);
   const [fileConverting, setFileConverting] = useState(false);
   const [copied, setCopied]         = useState(false);
-  const [cardCopied, setCardCopied] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [donateOpen, setDonateOpen]   = useState(false);
 
@@ -861,27 +860,16 @@ export function ConverterPage() {
                 {t("modalDonateDesc")}
               </p>
             </div>
-            <button
-              type="button"
-              onClick={async () => {
-                const ok = await copyToClipboard("9860190110799466");
-                if (ok) {
-                  setCardCopied(true);
-                  addToast(t("modalDonateCopiedToast"), "success", 1500);
-                  setTimeout(() => setCardCopied(false), 2000);
-                }
-              }}
-              className="group w-full inline-flex items-center justify-between gap-3 px-5 py-3 rounded-xl border-2 border-primary-200 dark:border-primary-800 bg-primary-50/50 dark:bg-primary-900/20 hover:border-primary-400 dark:hover:border-primary-600 transition-colors"
-              title={t("modalDonateCopy")}
+            <a
+              href="https://tirikchilik.uz/shohruzisroilov"
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => setDonateOpen(false)}
+              className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold shadow-md transition-colors"
             >
-              <span className="font-mono font-bold text-lg text-gray-800 dark:text-gray-200 tracking-widest">
-                9860 1901 1079 9466
-              </span>
-              {cardCopied
-                ? <CheckCheck size={16} className="text-emerald-500 flex-shrink-0" />
-                : <Copy size={16} className="opacity-40 group-hover:opacity-100 transition-opacity text-primary-600 dark:text-primary-400 flex-shrink-0" />
-              }
-            </button>
+              <span>{t("modalDonateButton")}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
             <p className="text-xs text-gray-400 dark:text-gray-500">{t("modalDonateHolder")}</p>
           </div>
         </div>

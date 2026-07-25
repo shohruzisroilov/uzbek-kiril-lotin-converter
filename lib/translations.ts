@@ -87,6 +87,7 @@ export interface TranslationDict {
   modalDonateCopied: string;
   modalDonateCopiedToast: string;
   modalDonateHolder: string;
+  modalDonateButton: string;
   modalContactTitle: string;
   modalContactDesc: string;
   modalContactLink: string;
@@ -186,7 +187,8 @@ export const translations: Record<Locale, TranslationDict> = {
     modalDonateCopy: "Нусхалаш",
     modalDonateCopied: "Нусхаланди!",
     modalDonateCopiedToast: "Карта рақами нусхаланди",
-    modalDonateHolder: "Shohruz Isroilov · Humo karta",
+    modalDonateHolder: "tirikchilik.uz/shohruzisroilov",
+    modalDonateButton: "Tirikchilik орқали донат қилиш",
     modalContactTitle: "Боғланиш",
     modalContactDesc: "Агар сизда сайт бўйича таклифлар бўлса ёки веб-сайтлар ва мобил иловалар ишлаб чиқиш бўйича ҳамкорлик қилмоқчи бўлсангиз, мен билан боғланишингиз мумкин:",
     modalContactLink: "Телеграм орқали ёзиш",
@@ -283,7 +285,8 @@ export const translations: Record<Locale, TranslationDict> = {
     modalDonateCopy: "Nusxa olish",
     modalDonateCopied: "Nusxalandi!",
     modalDonateCopiedToast: "Karta raqami nusxalandi",
-    modalDonateHolder: "Shohruz Isroilov · Humo karta",
+    modalDonateHolder: "tirikchilik.uz/shohruzisroilov",
+    modalDonateButton: "Tirikchilik orqali donat qilish",
     modalContactTitle: "Bog'lanish",
     modalContactDesc: "Agar sizda sayt bo'yicha takliflar bo'lsa yoki veb-saytlar va mobil ilovalar ishlab chiqish bo'yicha hamkorlik qilmoqchi bo'lsangiz, men bilan bog'lanishingiz mumkin:",
     modalContactLink: "Telegram orqali yozish",
@@ -380,7 +383,8 @@ export const translations: Record<Locale, TranslationDict> = {
     modalDonateCopy: "Копировать",
     modalDonateCopied: "Скопировано!",
     modalDonateCopiedToast: "Номер карты скопирован",
-    modalDonateHolder: "Шохруз Ислоилов · Карта Humo",
+    modalDonateHolder: "tirikchilik.uz/shohruzisroilov",
+    modalDonateButton: "Поддержать через Tirikchilik",
     modalContactTitle: "Контакты",
     modalContactDesc: "Если у вас есть предложения по улучшению сайта или вы хотите сотрудничать по разработке веб-сайтов и мобильных приложений, вы можете связаться со мной:",
     modalContactLink: "Написать в Telegram",
@@ -477,7 +481,8 @@ export const translations: Record<Locale, TranslationDict> = {
     modalDonateCopy: "Copy",
     modalDonateCopied: "Copied!",
     modalDonateCopiedToast: "Card number copied",
-    modalDonateHolder: "Shohruz Isroilov · Humo card",
+    modalDonateHolder: "tirikchilik.uz/shohruzisroilov",
+    modalDonateButton: "Donate via Tirikchilik",
     modalContactTitle: "Contact",
     modalContactDesc: "If you have suggestions for the site or wish to cooperate on web/mobile development, feel free to contact me:",
     modalContactLink: "Message on Telegram",
