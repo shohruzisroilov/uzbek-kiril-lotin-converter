@@ -105,6 +105,13 @@ export interface TranslationDict {
   toastUndo: string;
   toastFileLoaded: string;
   toastFileLoadError: string;
+  offlineToast: string;
+  onlineToast: string;
+  pwaInstallTitle: string;
+  pwaInstallDesc: string;
+  pwaInstallBtn: string;
+  pwaInstallDismiss: string;
+  pwaBadgeOffline: string;
 }
 
 export const translations: Record<Locale, TranslationDict> = {
@@ -205,6 +212,13 @@ export const translations: Record<Locale, TranslationDict> = {
     toastUndo: "Бекор қилиш",
     toastFileLoaded: '"{name}" юкланди',
     toastFileLoadError: "Файлни юклашда хато",
+    offlineToast: "Интернет узилиш юз берди. Конвертор офлайн режимда ишлашни давом эттиради.",
+    onlineToast: "Интернет алоқаси тикланди.",
+    pwaInstallTitle: "Иловани қурилмангизга ўрнатинг",
+    pwaInstallDesc: "Kiril ↔ Lotin конверторини интернетсиз ҳам тез ва осон ишлатиш учун ўрнатиб олинг.",
+    pwaInstallBtn: "Иловани ўрнатиш",
+    pwaInstallDismiss: "Кейинроқ",
+    pwaBadgeOffline: "Офлайн режим",
   },
   "uz-lat": {
     metaTitle: "Kiril Lotin Konvertor — Kirildan Lotinga yoki Lotindan Kirilga o'tkazish onlayn | Kiril Lotin",
@@ -303,6 +317,13 @@ export const translations: Record<Locale, TranslationDict> = {
     toastUndo: "Bekor qilish",
     toastFileLoaded: '"{name}" yuklandi',
     toastFileLoadError: "Faylni yuklashda xato",
+    offlineToast: "Internet uzilishi yuz berdi. Konvertor oflayn rejimda ishlashni davom ettiradi.",
+    onlineToast: "Internet aloqasi tiklandi.",
+    pwaInstallTitle: "Ilovani qurilmangizga o'rnating",
+    pwaInstallDesc: "Kiril ↔ Lotin konvertorini internetsiz ham tez va oson ishlatish uchun o'rnatib oling.",
+    pwaInstallBtn: "Ilovani o'rnatish",
+    pwaInstallDismiss: "Keyinroq",
+    pwaBadgeOffline: "Oflayn rejim",
   },
   "ru": {
     metaTitle: "Конвертер Кириллица Латиница — Онлайн перевод с кириллицы на латиницу и наоборот",
@@ -401,6 +422,13 @@ export const translations: Record<Locale, TranslationDict> = {
     toastUndo: "Отменить",
     toastFileLoaded: '"{name}" загружен',
     toastFileLoadError: "Ошибка при загрузке файла",
+    offlineToast: "Соединение с интернетом потеряно. Конвертер продолжает работать в офлайн режиме.",
+    onlineToast: "Соединение с интернетом восстановлено.",
+    pwaInstallTitle: "Установите приложение",
+    pwaInstallDesc: "Установите конвертер Кириллица ↔ Латиница для быстрого использования без интернета.",
+    pwaInstallBtn: "Установить",
+    pwaInstallDismiss: "Позже",
+    pwaBadgeOffline: "Офлайн режим",
   },
   "en": {
     metaTitle: "Cyrillic to Latin Converter — Online Uzbek transliteration tool",
@@ -499,5 +527,12 @@ export const translations: Record<Locale, TranslationDict> = {
     toastUndo: "Undo",
     toastFileLoaded: '"{name}" loaded',
     toastFileLoadError: "Error loading file",
+    offlineToast: "Internet connection lost. Converter continues working in offline mode.",
+    onlineToast: "Internet connection restored.",
+    pwaInstallTitle: "Install App",
+    pwaInstallDesc: "Install Cyrillic ↔ Latin Converter for fast use without internet connection.",
+    pwaInstallBtn: "Install App",
+    pwaInstallDismiss: "Later",
+    pwaBadgeOffline: "Offline mode",
   },
 };

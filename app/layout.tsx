@@ -5,6 +5,7 @@ import { ToastProvider } from "@/components/ToastContext";
 import { ToastContainer } from "@/components/ToastContainer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/components/LanguageContext";
+import { PWAHandler } from "@/components/PWAHandler";
 import "../globals.css";
 
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "";
@@ -306,6 +307,7 @@ export default function RootLayout({
         <link rel="alternate" hrefLang="uz-Cyrl" href={SITE_URL} />
         <link rel="alternate" hrefLang="uz-Latn" href={SITE_URL} />
         <link rel="alternate" hrefLang="x-default" href={SITE_URL} />
+        <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Kiril Lotin" />
@@ -365,6 +367,7 @@ export default function RootLayout({
           <LanguageProvider>
             <ToastProvider>
               {children}
+              <PWAHandler />
               <ToastContainer />
             </ToastProvider>
           </LanguageProvider>
