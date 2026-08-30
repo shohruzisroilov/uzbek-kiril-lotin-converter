@@ -51,3 +51,8 @@ lerna-debug.log*
 # OS
 Thumbs.db
 .DS_Store
+
+# Lokal AI/dizayn yordamchi vositalari (public repoga kerak emas)
+.agents/
+.impeccable/
+skills-lock.json
