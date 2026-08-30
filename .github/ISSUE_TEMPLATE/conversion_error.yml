@@ -1,0 +1,50 @@
+name: "🔤 Konvertatsiya xatosi"
+description: Kiril ↔ Lotin o'girishda noto'g'ri natija chiqdi
+title: "[Konvertatsiya]: "
+labels: ["konvertatsiya", "bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Algoritmdagi xatolar biz uchun eng muhim issue turi. Iltimos, aniq misol keltiring.
+
+  - type: dropdown
+    id: direction
+    attributes:
+      label: Yo'nalish
+      options:
+        - Kiril → Lotin
+        - Lotin → Kiril
+    validations:
+      required: true
+
+  - type: textarea
+    id: input
+    attributes:
+      label: Kiritilgan matn
+      description: Xatoni keltirib chiqaradigan matnni aynan nusxalab qo'ying
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Hozirgi (noto'g'ri) natija
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Kutilgan (to'g'ri) natija
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: rule
+    attributes:
+      label: Qoida manbasi
+      description: Agar rasmiy imlo qoidasiga tayansangiz, havola yoki qoida nomini yozing (majburiy emas)
