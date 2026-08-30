@@ -12,6 +12,7 @@ import {
   Sun,
   Menu,
 } from "lucide-react";
+import Link from "next/link";
 import { FileUploader } from "@/components/FileUploader";
 import { SeoContent } from "@/components/SeoContent";
 import { useToast } from "@/components/ToastContext";
@@ -287,7 +288,7 @@ export function ConverterPage() {
         }`}
       >
         <div className="max-w-full px-4 sm:px-8 lg:px-12 py-2 flex items-center justify-between gap-4">
-          <a
+          <Link
             href="/"
             onClick={(e) => {
               e.preventDefault();
@@ -308,7 +309,7 @@ export function ConverterPage() {
                 kirillotin.uz
               </span>
             </div>
-          </a>
+          </Link>
 
           <div className="flex items-center gap-1.5 sm:gap-2">
             {/* Desktop Navigation Links */}
@@ -334,12 +335,12 @@ export function ConverterPage() {
               >
                 {t("navFaq")}
               </a>
-              <a
+              <Link
                 href="/blog"
                 className="whitespace-nowrap px-3 py-1.5 rounded-md text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
                 {t("navBlog")}
-              </a>
+              </Link>
 
               <div className="w-px h-4 bg-gray-200 dark:bg-gray-700 mx-1 flex-shrink-0" />
 
@@ -511,13 +512,13 @@ export function ConverterPage() {
             >
               {t("navFaq")}
             </a>
-            <a
+            <Link
               href="/blog"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-2 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 text-sm font-semibold transition-colors"
             >
               {t("navBlog")}
-            </a>
+            </Link>
             <button
               onClick={() => {
                 setContactOpen(true);
@@ -887,12 +888,12 @@ export function ConverterPage() {
                 kirillotin.uz
               </a>
             </span>
-            <a
+            <Link
               href="/blog"
               className="font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
             >
               {t("navBlog")}
-            </a>
+            </Link>
             <a
               href="#faq"
               className="font-medium text-gray-500 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 hover:underline"
