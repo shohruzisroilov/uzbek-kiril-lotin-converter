@@ -4,6 +4,11 @@
 
 🌐 **Rasmiy sayt:** [kirillotin.uz](https://kirillotin.uz)
 
+[![CI](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/actions/workflows/ci.yml/badge.svg)](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/blob/main/CONTRIBUTING.md)
+[![Stars](https://img.shields.io/github/stars/shohruzisroilov/uzbek-kiril-lotin-converter?style=social)](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/stargazers)
+
 ## Imkoniyatlar
 
 - ✅ Kiril → Lotin konvertatsiya
@@ -40,7 +45,7 @@
 
 ```bash
 # Repoyani klon qiling
-git clone https://github.com/shokhruzisroilov/uzbek-kiril-lotin-converter.git
+git clone https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter.git
 cd uzbek-kiril-lotin-converter
 
 # Bog'liqliklarni o'rnating
@@ -106,20 +111,28 @@ Boshqa platformalar: Netlify, Cloudflare Pages, yoki o'z VPS serveringiz.
 
 ## Hissa qo'shish
 
-Pull request va issue lar mamnuniyat bilan qabul qilinadi.
+Bu ochiq manba loyha — pull request va issue lar mamnuniyat bilan qabul qilinadi. Boshlashdan oldin [CONTRIBUTING.md](CONTRIBUTING.md) ni o'qing: u yerda loyha tuzilmasi, konvertatsiya algoritmiga o'zgartirish kiritish qoidalari va kod uslubi yozilgan.
+
+Qisqacha:
 
 1. Repoyani **fork** qiling
-2. Yangi branch yarating (`git checkout -b feature/yangilanish`)
-3. O'zgarishlarni commit qiling (`git commit -m 'feat: yangi imkoniyat'`)
-4. Branch ga push qiling (`git push origin feature/yangilanish`)
+2. Yangi branch yarating (`git checkout -b fix/ts-harfi`)
+3. `npm run lint && npx tsc --noEmit && npm run build` — hammasi o'tsin
+4. Commit qiling (`git commit -m 'fix: ...'`) va push qiling
 5. **Pull Request** oching
 
 ### Xato yoki taklif
 
-Konvertatsiya algoritmida xato topdingizmi? [Issue oching](https://github.com/shokhruzisroilov/uzbek-kiril-lotin-converter/issues) va misol keltiring:
-- Kiritish matni
-- Hozirgi (noto'g'ri) natija
-- Kutilgan natija
+| Nima | Qayerga |
+|---|---|
+| 🔤 Konvertatsiya noto'g'ri | [Konvertatsiya xatosi](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/issues/new?template=conversion_error.yml) |
+| 🐛 Saytdagi xato | [Bug report](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/issues/new?template=bug_report.yml) |
+| ✨ Yangi imkoniyat | [Taklif](https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/issues/new?template=feature_request.yml) |
+| 🔒 Xavfsizlik zaifligi | [SECURITY.md](SECURITY.md) — ochiq issue ochmang |
+
+Konvertatsiya xatosi haqida xabar berayotganda albatta misol keltiring: kiritish matni, hozirgi (noto'g'ri) natija va kutilgan natija.
+
+Ishtirokchilardan [Xatti-harakat kodeksi](CODE_OF_CONDUCT.md) ga rioya qilish kutiladi.
 
 ## Litsenziya
 
@@ -133,7 +146,7 @@ Foydalanish, o'zgartirish va tarqatish ruxsat etiladi. Litsenziya nusxasini kiri
 
 - 🌐 Sayt: [kirillotin.uz](https://kirillotin.uz)
 - 💬 Telegram: [@Shohruz_Isroilov](https://t.me/Shohruz_Isroilov)
-- 🐙 GitHub: [@shokhruzisroilov](https://github.com/shokhruzisroilov)
+- 🐙 GitHub: [@shohruzisroilov](https://github.com/shohruzisroilov)
 
 ---
 

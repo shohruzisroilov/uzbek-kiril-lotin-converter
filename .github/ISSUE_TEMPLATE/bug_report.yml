@@ -1,0 +1,37 @@
+name: "🐛 Xato (bug)"
+description: Saytda yoki interfeysda xato topdingizmi
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Xato tavsifi
+      description: Nima bo'ldi va nima bo'lishi kerak edi
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Takrorlash qadamlari
+      value: |
+        1. ...
+        2. ...
+        3. ...
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Brauzer va qurilma
+      placeholder: "Chrome 130, Windows 11 / Safari, iPhone 14"
+    validations:
+      required: true
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Skrinshot yoki konsol xatosi
+      description: Majburiy emas, lekin juda yordam beradi

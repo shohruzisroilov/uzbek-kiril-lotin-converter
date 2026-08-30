@@ -1,0 +1,24 @@
+name: "✨ Yangi imkoniyat taklifi"
+description: Loyhaga qo'shilishini istagan funksiya
+title: "[Taklif]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Qanday muammoni hal qiladi?
+      description: "Masalan: «.pdf fayllarni konvertatsiya qila olmayapman»"
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Taklif qilinayotgan yechim
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Ko'rib chiqilgan boshqa variantlar
