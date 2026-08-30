@@ -1,8 +1,29 @@
 {
-  "name": "uzbek-text-converter",
+  "name": "uzbek-kiril-lotin-converter",
   "version": "1.0.0",
-  "description": "Modern Uzbek Cyrillic ↔ Latin text converter",
+  "description": "O'zbek matnini Kiril va Lotin yozuvlari o'rtasida konvertatsiya qiluvchi bepul veb-ilova",
   "private": true,
+  "license": "MIT",
+  "author": "Shohruz Isroilov <shokhruzisroilov@gmail.com> (https://github.com/shohruzisroilov)",
+  "homepage": "https://kirillotin.uz",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/shohruzisroilov/uzbek-kiril-lotin-converter/issues"
+  },
+  "keywords": [
+    "uzbek",
+    "cyrillic",
+    "latin",
+    "transliteration",
+    "converter",
+    "kiril",
+    "lotin",
+    "nextjs",
+    "o zbek"
+  ],
   "engines": {
     "node": ">=20.0.0"
   },
